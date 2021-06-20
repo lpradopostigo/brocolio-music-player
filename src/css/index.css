@@ -12,11 +12,20 @@
     --media-button-size: 1.75rem;
     --color-text-inactive: var(--color-secondary-light);
     --media-button-color: var(--color-secondary);
+    --border-radious-base: 10px;
+}
 
+body{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 audio-player {
     width: 100%;
+    position: sticky;
+    top: 0;
+    background-color: white;
 }
 
 media-button {
@@ -24,9 +33,13 @@ media-button {
     width: var(--media-button-size);
 }
 
-div {
-    background-color: var(--color-primary);
-    height: 0.4rem;
+media-progress{
     width: 100%;
-    border-radius: 10px;
+    height: 0.8rem;
 }
+
+audio-playlist{
+    flex: 1;
+}
+
+

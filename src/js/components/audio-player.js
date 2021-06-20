@@ -1,19 +1,19 @@
 import { css, html, LitElement } from 'lit'
 
 class AudioPlayer extends LitElement {
+  constructor () {
+    super()
+    this.audioTitle = ''
+    this.audioArtist = ''
+    this.audioAlbum = ''
+  }
+
   static get properties () {
     return {
       audioTitle: { attribute: 'audio-title' },
       audioArtist: { attribute: 'audio-artist' },
       audioAlbum: { attribute: 'audio-album' }
     }
-  }
-
-  constructor () {
-    super()
-    this.audioTitle = ''
-    this.audioArtist = ''
-    this.audioAlbum = ''
   }
 
   static get styles () {
@@ -27,13 +27,13 @@ class AudioPlayer extends LitElement {
         grid-template-rows: 40vw 1fr;
         grid-template-columns: 40vw 1fr;
         padding: 1.25rem;
-        border-radius: 0 0 10px 10px;
+        border-radius: 0 0 var(--border-radious-base) var(--border-radious-base);
         box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
 
       }
 
       ::slotted(img), svg {
-        border-radius: 10px;
+        border-radius: var(--border-radious-base);
         width: 100%;
       }
 
@@ -87,7 +87,6 @@ class AudioPlayer extends LitElement {
 
       svg {
         background-color: var(--color-secondary);
-
       }
 
       .main-controls {
@@ -97,10 +96,7 @@ class AudioPlayer extends LitElement {
         padding-bottom: 0.5rem;
         padding-right: 1rem;
         padding-left: 1rem;
-
       }
-
-
     `
   }
 
@@ -124,10 +120,8 @@ class AudioPlayer extends LitElement {
                 <slot name="control-pause"></slot>
                 <slot name="control-next"></slot>
             </div>
-
         </div>
         <slot name="control-progress"></slot>
-
     `
   }
 }
