@@ -1,0 +1,32 @@
+@import "./modern-normalize.css";
+
+:root {
+    --color-primary: #2962FF;
+    --color-secondary: #212121;
+    --color-secondary-light: #616161;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+
+    --media-button-size: 1.75rem;
+    --color-text-inactive: var(--color-secondary-light);
+    --media-button-color: var(--color-secondary);
+
+}
+
+audio-player {
+    width: 100%;
+}
+
+media-button {
+    height: var(--media-button-size);
+    width: var(--media-button-size);
+}
+
+div {
+    background-color: var(--color-primary);
+    height: 0.4rem;
+    width: 100%;
+    border-radius: 10px;
+}
