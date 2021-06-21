@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "snowpack dev",
+    "start": "snowpack dev --polyfill-node",
     "clean": "rm -rf dist build",
     "pre": "cp node_modules/modern-normalize/modern-normalize.css src/css",
     "build": "npm run pre && snowpack build"
@@ -13,15 +13,20 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "peerDependencies": {
-    "lit": "^2.0.0-rc.2"
-  },
   "devDependencies": {
+    "eslint": "^7.13.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
     "snowpack": "^3.5.9",
     "standard": "^16.0.3"
   },
   "dependencies": {
     "@github/file-attachment-element": "^2.0.1",
-    "modern-normalize": "^1.1.0"
+    "buffer": "^6.0.3",
+    "modern-normalize": "^1.1.0",
+    "music-metadata-browser": "^2.2.6",
+    "lit": "^2.0.0-rc.2"
   }
 }

@@ -6,6 +6,7 @@ class AudioPlayer extends LitElement {
     this.audioTitle = ''
     this.audioArtist = ''
     this.audioAlbum = ''
+    this.addEventListener('audio-selected', (e) => { console.log(e.detail) })
   }
 
   static get properties () {
