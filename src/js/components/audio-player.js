@@ -6,7 +6,9 @@ class AudioPlayer extends LitElement {
     this.audioTitle = ''
     this.audioArtist = ''
     this.audioAlbum = ''
-    this.addEventListener('audio-selected', (e) => { console.log(e.detail) })
+    this.audio = null
+    this.controlPlay = null
+    this.controlPause = null
   }
 
   static get properties () {
@@ -101,6 +103,24 @@ class AudioPlayer extends LitElement {
     `
   }
 
+  firstUpdated (_changedProperties) {
+    this.controlPlay = this.shadowRoot.querySelector('slot[name=control-play]')
+    this.controlPause = this.shadowRoot.querySelector('slot[name=control-pause]')
+  }
+
+  connectedCallback () {
+    super.connectedCallback()
+    this.addEventListener('audio-selected', ({ detail }) => {
+      if (this.audio != null) {
+        this.audio.pause()
+        this.audio.currentTime = 0
+      }
+
+      this.audio = new Audio(URL.createObjectURL(detail.file))
+      this.playAudio()
+    })
+  }
+
   render () {
     return html`
         <slot name="audio-art">
@@ -117,13 +137,29 @@ class AudioPlayer extends LitElement {
             </div>
             <div class="main-controls">
                 <slot name="control-previous"></slot>
-                <slot name="control-play"></slot>
-                <slot name="control-pause"></slot>
+                <slot @click=${this.playAudio}  name="control-play"></slot>
+                <slot @click=${this.pauseAudio} name="control-pause"></slot>
                 <slot name="control-next"></slot>
             </div>
         </div>
         <slot name="control-progress"></slot>
     `
+  }
+
+  pauseAudio () {
+    if (!this.audio?.paused) {
+      this.audio.pause()
+      this.controlPause.style.display = 'none'
+      this.controlPlay.style.display = 'initial'
+    }
+  }
+
+  playAudio () {
+    if (this.audio?.paused) {
+      this.audio.play()
+      this.controlPause.style.display = 'initial'
+      this.controlPlay.style.display = 'none'
+    }
   }
 }
 

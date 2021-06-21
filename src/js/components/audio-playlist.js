@@ -73,7 +73,7 @@ class AudioPlaylist extends LitElement {
                         }
                 )
                 return html`
-                    ${until(content, html``)}
+                    ${until(content, null)}
                 `
             })}
 
@@ -90,10 +90,6 @@ class AudioPlaylist extends LitElement {
       this.fileInputLabel.style.display = 'none'
       this.attachments = event.detail.attachments
       this.requestUpdate()
-      // const audioUrl = URL.createObjectURL(this.attachments[0].file)
-      // eslint-disable-next-line no-undef
-      //  const audio = new Audio(audioUrl)
-      //  audio.play()
     })
     this.fileAttachment.style.height = `${this.getBoundingClientRect().height}px`
   }
