@@ -1,6 +1,7 @@
 import { css, html, LitElement } from 'lit'
 import { until } from 'lit/directives/until.js'
 import '@github/file-attachment-element'
+import './audio-item'
 import * as musicMetadata from 'music-metadata-browser'
 // polyfill for music-metadata-browser
 import { Buffer } from 'buffer'

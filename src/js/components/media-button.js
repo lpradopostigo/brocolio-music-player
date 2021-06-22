@@ -2,6 +2,12 @@ import { css, html, LitElement } from 'lit'
 
 // noinspection JSUnresolvedVariable
 export default class MediaButton extends LitElement {
+  constructor () {
+    super()
+    this.mediaRole = 'previous'
+    this.mediaButton = null
+  }
+
   static get properties () {
     return {
       mediaRole: { attribute: 'media-role' }
@@ -44,12 +50,6 @@ export default class MediaButton extends LitElement {
         }
       }
     `
-  }
-
-  constructor () {
-    super()
-    this.mediaRole = 'previous'
-    this.mediaButton = null
   }
 
   render () {

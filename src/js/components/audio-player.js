@@ -1,46 +1,44 @@
 import { css, html, LitElement } from 'lit'
+import './media-text'
 
 class AudioPlayer extends LitElement {
   constructor () {
     super()
-    this.audioTitle = ''
-    this.audioArtist = ''
-    this.audioAlbum = ''
     this.audio = null
     this.controlPlay = null
     this.controlPause = null
-  }
-
-  static get properties () {
-    return {
-      audioTitle: { attribute: 'audio-title' },
-      audioArtist: { attribute: 'audio-artist' },
-      audioAlbum: { attribute: 'audio-album' }
-    }
+    this.audioDetails = null
+    this.currentData = {}
   }
 
   static get styles () {
     return css`
       :host {
+        font-family: sans-serif;
+        box-sizing: border-box;
         display: grid;
         grid-template-areas:  
                 "left right"
                 "bottom bottom";
-        font-family: sans-serif;
-        grid-template-rows: 40vw 1fr;
-        grid-template-columns: 40vw 1fr;
-        padding: 1.25rem;
+
+        grid-template-rows: 40vw minmax(0, 1fr);
+        grid-template-columns: 40vw minmax(0, 1fr);
         border-radius: 0 0 var(--border-radious-base) var(--border-radious-base);
+        gap: 1.25rem;
+        padding: 1.25rem;
         box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
 
       }
 
-      ::slotted(img), svg {
-        border-radius: var(--border-radious-base);
+      span {
+        color: var(--color-text-inactive);
+      }
+
+      media-text {
         width: 100%;
       }
 
-      slot[name=audio-art] {
+      .audio-art {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -48,18 +46,24 @@ class AudioPlayer extends LitElement {
         overflow: hidden;
       }
 
-      :host > div {
+      .audio-art__default {
+        border-radius: var(--border-radious-base);
+        background-color: var(--color-secondary);
+        width: 100%;
+        height: 100%;
+      }
+
+      :host > div:nth-child(2) {
         display: flex;
         flex-direction: column;
         grid-area: right;
-        margin-left: 1.25rem;
         justify-content: space-between;
+        width: 100%;
       }
 
       slot[name=control-progress] {
         grid-area: bottom;
         display: block;
-        margin-top: 0.5rem;
       }
 
       slot[name=control-pause] {
@@ -82,30 +86,20 @@ class AudioPlayer extends LitElement {
         padding-top: 0.5rem;
       }
 
-      span {
-        color: var(--color-text-inactive);
-        margin: 0;
-      }
-
-
-      svg {
-        background-color: var(--color-secondary);
-      }
-
       .main-controls {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding-bottom: 0.5rem;
-        padding-right: 1rem;
-        padding-left: 1rem;
+        padding: 0 0.5rem 0.5rem 0.5rem;
       }
+
     `
   }
 
   firstUpdated (_changedProperties) {
     this.controlPlay = this.shadowRoot.querySelector('slot[name=control-play]')
     this.controlPause = this.shadowRoot.querySelector('slot[name=control-pause]')
+    this.audioDetails = this.shadowRoot.querySelector('.audio-details')
   }
 
   connectedCallback () {
@@ -115,29 +109,36 @@ class AudioPlayer extends LitElement {
         this.audio.pause()
         this.audio.currentTime = 0
       }
-
-      this.audio = new Audio(URL.createObjectURL(detail.file))
+      this.currentData = detail
+      this.audioDetails?.classList.add('audio-details--active')
+      this.audio = new Audio(URL.createObjectURL(this.currentData.file))
       this.playAudio()
+      this.requestUpdate()
     })
   }
 
   render () {
     return html`
-        <slot name="audio-art">
-            <svg viewBox="0 0 114 108" xmlns="http://www.w3.org/2000/svg">
+        <div class="audio-art">
+            <svg class="audio-art__default" viewBox="0 0 114 108" xmlns="http://www.w3.org/2000/svg">
                 <path d="M86.3333 22L43.6773 31.56V66.3333C35.7333 64.7627 27.6667 70.7893 27.6667 77.4107C27.6667 83.1093 32.1227 86 36.96 86C42.7067 86 48.992 81.9253 49 73.632V44.5653L81 38.008V61.0053C73.0667 59.44 65 65.4427 65 72.048C65 77.7627 69.5733 80.6667 74.3893 80.6667C80.096 80.6667 86.3253 76.5973 86.3333 68.304V22Z"
                       fill="white"/>
             </svg>
-        </slot>
+        </div>
         <div>
             <div class="audio-details">
-                <slot name="audio-title"><span>Nothing is playing</span></slot>
-                <slot name="audio-artist"></slot>
-                <slot name="audio-album"></slot>
+                ${this.audio == null
+                        ? html`<span>Nothing is playing</span>`
+                        : html`
+                            <media-text class="audio-title" value=${this.currentData?.title}></media-text>
+                            <media-text class="audio-artist" value=${this.currentData?.artist}></media-text>
+                            <media-text class="audio-album" value=${this.currentData?.album}></media-text>
+                        `}
+
             </div>
             <div class="main-controls">
                 <slot name="control-previous"></slot>
-                <slot @click=${this.playAudio}  name="control-play"></slot>
+                <slot @click=${this.playAudio} name="control-play"></slot>
                 <slot @click=${this.pauseAudio} name="control-pause"></slot>
                 <slot name="control-next"></slot>
             </div>
