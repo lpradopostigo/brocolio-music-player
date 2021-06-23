@@ -28,29 +28,12 @@ audio-player {
     background-color: white;
 }
 
-media-button {
-    height: var(--media-button-size);
-    width: var(--media-button-size);
-}
-
-media-progress {
-    width: 100%;
-    height: 0.8rem;
-}
 
 audio-playlist {
     flex: 1;
 }
 
-media-text {
-    font-size: 2rem;
-    width: 5ch;
 
-}
-
-span {
-    display: inline-block;
-}
 
 
 

@@ -64,9 +64,10 @@ class AudioPlaylist extends LitElement {
 
             ${this.attachments.map((attachment) => {
                 const content = musicMetadata.parseBlob(attachment.file).then(
-                        ({ common: { title, artist, album }, format: { duration } }) => {
+                        (metadata) => {
+                            const { common: { title, artist, album, picture }, format: { duration } } = metadata
                             const audioSelectedEvent = new CustomEvent('audio-selected',
-                                    { detail: { file: attachment.file, title: title, artist: artist, album: album } })
+                                    { detail: { file: attachment.file, title: title, artist: artist, album: album, picture: picture } })
 
                             return html`
                                 <audio-item @click=${() => { this.audioPlayer.dispatchEvent(audioSelectedEvent) }}
@@ -77,8 +78,6 @@ class AudioPlaylist extends LitElement {
                     ${until(content, null)}
                 `
             })}
-
-
         </file-attachment>
     `
   }
@@ -87,9 +86,9 @@ class AudioPlaylist extends LitElement {
     this.fileInputLabel = this.shadowRoot.querySelector('label')
     this.fileAttachment = this.shadowRoot.querySelector('file-attachment')
 
-    this.fileAttachment.addEventListener('file-attachment-accepted', (event) => {
+    this.fileAttachment.addEventListener('file-attachment-accepted', (e) => {
       this.fileInputLabel.style.display = 'none'
-      this.attachments = event.detail.attachments
+      this.attachments = e.detail.attachments
       this.requestUpdate()
     })
     this.fileAttachment.style.height = `${this.getBoundingClientRect().height}px`

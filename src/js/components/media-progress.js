@@ -1,4 +1,5 @@
 import { css, html, LitElement } from 'lit'
+import { toPercentage } from '../utils'
 
 class MediaProgress extends LitElement {
   constructor () {
@@ -57,12 +58,8 @@ class MediaProgress extends LitElement {
     this.addEventListener('click', (e) => {
       const value = e.x - this.getBoundingClientRect().x
       const referenceValue = this.getBoundingClientRect().width
-      this.value = this.toPercentage(value, referenceValue)
+      this.value = toPercentage(value, referenceValue)
     })
-  }
-
-  toPercentage (value, referenceValue) {
-    return (value / referenceValue) * 100
   }
 }
 
