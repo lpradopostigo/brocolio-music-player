@@ -2,22 +2,27 @@ import { css, html, LitElement } from 'lit'
 import './media-text'
 import './media-progress'
 import './media-button'
-import { toPercentage } from '../utils'
+import { percentageToValue, valueToPercentage } from '../utils'
 
 class AudioPlayer extends LitElement {
   constructor () {
     super()
     this.currentAudio = null
-    this.controlPlay = null
-    this.controlPause = null
-    this.audioDetails = null
+    this.controlPlay = undefined
+    this.controlPause = undefined
+    this.audioDetails = undefined
+    this.controlSeek = undefined
     this.currentData = {}
     this.currentAudioTime = 0
+
+    this.handleAudioSelected = this.handleAudioSelected.bind(this)
+    this.seek = this.seek.bind(this)
   }
 
   static get properties () {
     return {
-      currentAudioTime: { state: true }
+      currentAudioTime: { state: true },
+      currentAudio: { state: true }
     }
   }
 
@@ -140,25 +145,39 @@ class AudioPlayer extends LitElement {
     this.controlPlay = this.shadowRoot.querySelector('.control-play')
     this.controlPause = this.shadowRoot.querySelector('.control-pause')
     this.audioDetails = this.shadowRoot.querySelector('.audio-details')
+    this.controlSeek = this.shadowRoot.querySelector('media-progress')
+
+    this.controlSeek.addEventListener('click', this.seek)
+  }
+
+  seek () {
+    this.currentAudio.currentTime = percentageToValue(this.controlSeek.value, this.currentAudio?.duration)
+    this.currentAudioTime = this.currentAudio?.currentTime
   }
 
   connectedCallback () {
     super.connectedCallback()
-    this.addEventListener('audio-selected', ({ detail }) => {
-      if (this.currentAudio != null) {
-        this.currentAudio.pause()
-        this.currentAudio.currentTime = 0
-      }
-      this.currentData = detail
-      console.log(detail)
-      this.audioDetails?.classList.add('audio-details--active')
-      this.currentAudio = new Audio(URL.createObjectURL(this.currentData.file))
-      this.playAudio()
-      setInterval(() => {
-        this.currentAudioTime = this.currentAudio.currentTime
-      }, 1000)
-      this.requestUpdate()
-    })
+    this.addEventListener('audio-selected', this.handleAudioSelected)
+  }
+
+  disconnectedCallback () {
+    super.disconnectedCallback()
+    this.removeEventListener('audio-selected', this.handleAudioSelected)
+  }
+
+  handleAudioSelected ({ detail: data }) {
+    this.currentAudio?.pause()
+    this.currentData = data
+    this.audioDetails?.classList.add('audio-details--active')
+    this.currentAudio = new Audio(URL.createObjectURL(data.file))
+    this.playCurrentAudio()
+    this.setProgressBarTick(1000)
+  }
+
+  setProgressBarTick (ms) {
+    return setInterval(() => {
+      this.currentAudioTime = this.currentAudio.currentTime
+    }, ms)
   }
 
   render () {
@@ -166,6 +185,7 @@ class AudioPlayer extends LitElement {
         <div class="audio-art">
             ${this.audioArt}
         </div>
+
         <div>
             <div class="audio-details">
                 ${this.currentAudio == null
@@ -178,22 +198,23 @@ class AudioPlayer extends LitElement {
                             <media-text class="audio-album"
                                         value=${this.currentData?.album != null ? this.currentData.album : 'unknown album'}></media-text>
                         `}
-
             </div>
+
             <div class="main-controls">
                 <media-button class="control-previous" media-role="previous"></media-button>
-                <media-button class="control-play" media-role="play" @click=${this.playAudio}></media-button>
-                <media-button class="control-pause" media-role="pause" @click=${this.pauseAudio}></media-button>
+                <media-button class="control-play" media-role="play" @click=${this.playCurrentAudio}></media-button>
+                <media-button class="control-pause" media-role="pause" @click=${this.pauseCurrentAudio}></media-button>
                 <media-button class="control-next" media-role="next"></media-button>
             </div>
         </div>
+
         <media-progress value=${this.currentAudio != null && !isNaN(this.currentAudio.duration)
-                ? toPercentage(this.currentAudioTime, this.currentAudio.duration)
+                ? valueToPercentage(this.currentAudioTime, this.currentAudio.duration)
                 : '0'}></media-progress>
     `
   }
 
-  pauseAudio () {
+  pauseCurrentAudio () {
     if (!this.currentAudio?.paused) {
       this.currentAudio.pause()
       this.controlPause.style.display = 'none'
@@ -201,7 +222,7 @@ class AudioPlayer extends LitElement {
     }
   }
 
-  playAudio () {
+  playCurrentAudio () {
     if (this.currentAudio?.paused) {
       this.currentAudio.play()
       this.controlPause.style.display = 'initial'

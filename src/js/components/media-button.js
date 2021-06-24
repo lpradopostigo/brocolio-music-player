@@ -1,11 +1,13 @@
 import { css, html, LitElement } from 'lit'
 
-// noinspection JSUnresolvedVariable
 export default class MediaButton extends LitElement {
   constructor () {
     super()
-    this.mediaRole = 'previous'
-    this.mediaButton = null
+    this.mediaRole = 'play'
+    this.mediaSVG = null
+
+    this.startAnimation = this.startAnimation.bind(this)
+    this.cleanAnimation = this.cleanAnimation.bind(this)
   }
 
   static get properties () {
@@ -20,13 +22,14 @@ export default class MediaButton extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        
+
       }
-      svg{
+
+      svg {
         height: 100%;
         width: 100%;
       }
-      
+
       svg path {
         fill: var(--media-button-color);
       }
@@ -86,14 +89,24 @@ export default class MediaButton extends LitElement {
   }
 
   firstUpdated (_changedProperties) {
-    this.mediaButton = this.shadowRoot.querySelector('svg')
-    this.mediaButton.addEventListener('click', () => {
-      this.mediaButton.classList.add('active')
-    })
+    this.mediaSVG = this.shadowRoot.querySelector('svg')
 
-    this.mediaButton.addEventListener('animationend', () => {
-      this.mediaButton.classList.remove('active')
-    })
+    this.mediaSVG.addEventListener('click', this.startAnimation)
+    this.mediaSVG.addEventListener('animationend', this.cleanAnimation)
+  }
+
+  disconnectedCallback () {
+    super.disconnectedCallback()
+    this.mediaSVG.removeEventListener('click', this.startAnimation)
+    this.mediaSVG.removeEventListener('click', this.cleanAnimation)
+  }
+
+  startAnimation () {
+    this.mediaSVG?.classList.add('active')
+  }
+
+  cleanAnimation () {
+    this.mediaSVG?.classList.remove('active')
   }
 }
 

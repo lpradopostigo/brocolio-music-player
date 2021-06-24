@@ -17,6 +17,8 @@ class AudioPlaylist extends LitElement {
     this.fileAttachment = null
     this.attachments = []
     this.audioPlayer = document.querySelector('audio-player')
+
+    this.handleAttachmentAccepted = this.handleAttachmentAccepted.bind(this)
   }
 
   static get properties () {
@@ -67,26 +69,26 @@ class AudioPlaylist extends LitElement {
             <input type="file" id="input-file" accept="audio/*" multiple>
 
             ${this.attachments.map(({ file }) => {
-                const content = parseBlob(file).then(
-                        ({
-                            common: {
-                                title,
-                                artist,
-                                album,
-                                picture
-                            },
-                            format: { duration }
-                        }) => {
-                            const data = { file, title, artist, album, picture }
+      const content = parseBlob(file).then(
+        ({
+          common: {
+            title,
+            artist,
+            album,
+            picture
+          },
+          format: { duration }
+        }) => {
+          const data = { file, title, artist, album, picture }
 
-                            return html`
+          return html`
                                 <audio-item @click=${() => { this.dispatchAudioData(data) }}
                                             audio-title=${title} audio-duration=${this.formatDuration(duration)}>`
-                        }
-                )
+        }
+      )
 
-                return html`${until(content, null)}`
-            })}
+      return html`${until(content, null)}`
+    })}
         </file-attachment>
     `
   }
@@ -110,7 +112,7 @@ class AudioPlaylist extends LitElement {
     this.fileInputLabel = this.shadowRoot.querySelector('label')
     this.fileAttachment = this.shadowRoot.querySelector('file-attachment')
 
-    this.fileAttachment.addEventListener('file-attachment-accepted', (e) => { this.handleAttachmentAccepted(e) })
+    this.fileAttachment.addEventListener('file-attachment-accepted', this.handleAttachmentAccepted)
   }
 
   formatDuration (duration) {

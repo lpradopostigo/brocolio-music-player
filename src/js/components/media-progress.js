@@ -1,5 +1,5 @@
 import { css, html, LitElement } from 'lit'
-import { toPercentage } from '../utils'
+import { valueToPercentage } from '../utils'
 
 class MediaProgress extends LitElement {
   constructor () {
@@ -73,7 +73,7 @@ class MediaProgress extends LitElement {
     if (!this.disabled) {
       const { width, x } = this.getBoundingClientRect()
       const relX = e.x - x
-      this.value = toPercentage(relX, width)
+      this.value = valueToPercentage(relX, width)
     }
   }
 }
