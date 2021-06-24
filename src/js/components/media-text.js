@@ -6,8 +6,8 @@ class MediaText extends LitElement {
     this.value = ''
     this.dynamic = false
     this.viewbox = null
-    this.viewportWidth = null
-    this.viewboxWidth = null
+    this.viewportWidth = undefined
+    this.viewboxWidth = undefined
   }
 
   static get properties () {
@@ -23,7 +23,6 @@ class MediaText extends LitElement {
         display: inline-block;
         overflow: hidden;
       }
-
 
       :host > span {
         display: inline-block;

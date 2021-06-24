@@ -150,13 +150,13 @@ class AudioPlayer extends LitElement {
         this.currentAudio.currentTime = 0
       }
       this.currentData = detail
+      console.log(detail)
       this.audioDetails?.classList.add('audio-details--active')
       this.currentAudio = new Audio(URL.createObjectURL(this.currentData.file))
-
+      this.playAudio()
       setInterval(() => {
         this.currentAudioTime = this.currentAudio.currentTime
       }, 1000)
-      this.playAudio()
       this.requestUpdate()
     })
   }
@@ -164,9 +164,7 @@ class AudioPlayer extends LitElement {
   render () {
     return html`
         <div class="audio-art">
-            ${this.currentAudio == null
-                    ? this.audioArtDefault
-                    : this.audioArt}
+            ${this.audioArt}
         </div>
         <div>
             <div class="audio-details">
