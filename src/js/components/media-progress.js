@@ -1,5 +1,6 @@
-import { css, html, LitElement } from 'lit'
+import { html, LitElement } from 'lit'
 import { valueToPercentage } from '../utils'
+import { styles } from './media-progress.styles'
 
 class MediaProgress extends LitElement {
   constructor () {
@@ -10,26 +11,7 @@ class MediaProgress extends LitElement {
   }
 
   static get styles () {
-    return css`
-      :host {
-        display: flex;
-        align-items: center;
-      }
-
-      .bar {
-        background-color: var(--color-secondary-light);
-        overflow: hidden;
-        height: 50%;
-        width: 100%;
-        border-radius: var(--border-radious-base);
-      }
-
-      .bar__progress {
-        height: 100%;
-        width: 0;
-        background-color: var(--color-primary);
-      }
-    `
+    return styles
   }
 
   static get properties () {
@@ -59,8 +41,10 @@ class MediaProgress extends LitElement {
     }
 
     return html`
-        <div class="bar">
-            <div class="bar__progress"></div>
+        <div class="container">
+            <div class="bar">
+                <div class="bar__progress"></div>
+            </div>
         </div>
     `
   }
