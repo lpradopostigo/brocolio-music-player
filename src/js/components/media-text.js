@@ -1,4 +1,5 @@
-import { css, html, LitElement } from 'lit'
+import { html, LitElement } from 'lit'
+import { styles } from './media-text.styles'
 
 class MediaText extends LitElement {
   constructor () {
@@ -18,30 +19,7 @@ class MediaText extends LitElement {
   }
 
   static get styles () {
-    return css`
-      :host {
-        display: inline-block;
-        overflow: hidden;
-      }
-
-      :host > span {
-        display: inline-block;
-        width: inherit;
-        height: inherit;
-        line-height: 150%;
-      }
-
-      span > span {
-        transition-property: transform;
-        transition-duration: 2s;
-        white-space: nowrap;
-      }
-
-      .ellipsis {
-        text-overflow: ellipsis;
-        overflow: hidden;
-      }
-    `
+    return styles
   }
 
   render () {
