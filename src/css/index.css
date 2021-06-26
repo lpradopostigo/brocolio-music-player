@@ -9,9 +9,7 @@
     --text-lg: 1.125rem;
     --text-xl: 1.25rem;
 
-    --media-button-size: 1.75rem;
     --color-text-inactive: var(--color-secondary-light);
-    --media-button-color: var(--color-secondary);
     --border-radious-base: 10px;
 }
 
@@ -26,6 +24,7 @@ audio-player {
     position: sticky;
     top: 0;
     background-color: white;
+    --grid-height-xs: 9rem;
 }
 
 

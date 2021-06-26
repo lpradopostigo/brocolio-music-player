@@ -97,26 +97,24 @@ class AudioPlayer extends LitElement {
             ${this.audioArt}
         </div>
 
-        <div class="container">
-            <div class="audio-info__text">
-                ${this.currentAudio == null
-                        ? html`<span>Nothing is playing</span>`
-                        : html`
-                            <media-text class="audio-title"
-                                        value=${this.currentData?.title != null ? this.currentData.title : 'unknown title'}></media-text>
-                            <media-text class="audio-artist"
-                                        value=${this.currentData?.artist != null ? this.currentData.artist : 'unknown artist'}></media-text>
-                            <media-text class="audio-album"
-                                        value=${this.currentData?.album != null ? this.currentData.album : 'unknown album'}></media-text>
-                        `}
-            </div>
+        <div class="audio-info__text">
+            ${this.currentAudio == null
+                    ? html`<span>Nothing is playing</span>`
+                    : html`
+                        <media-text class="audio-title"
+                                    value=${this.currentData?.title != null ? this.currentData.title : 'unknown title'}></media-text>
+                        <media-text class="audio-artist"
+                                    value=${this.currentData?.artist != null ? this.currentData.artist : 'unknown artist'}></media-text>
+                        <media-text class="audio-album"
+                                    value=${this.currentData?.album != null ? this.currentData.album : 'unknown album'}></media-text>
+                    `}
+        </div>
 
-            <div class="media-button-wrapper">
-                <media-button class="button-previous" media-role="previous"></media-button>
-                <media-button class="button-play" media-role="play" @click=${this.playCurrentAudio}></media-button>
-                <media-button class="button-pause" media-role="pause" @click=${this.pauseCurrentAudio}></media-button>
-                <media-button class="button-next" media-role="next"></media-button>
-            </div>
+        <div class="media-button-wrapper">
+            <media-button class="button-previous" media-role="previous"></media-button>
+            <media-button class="button-play" media-role="play" @click=${this.playCurrentAudio}></media-button>
+            <media-button class="button-pause" media-role="pause" @click=${this.pauseCurrentAudio}></media-button>
+            <media-button class="button-next" media-role="next"></media-button>
         </div>
 
         <media-progress class="slider-seek"
