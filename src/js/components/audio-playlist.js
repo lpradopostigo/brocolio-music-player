@@ -17,6 +17,7 @@ class AudioPlaylist extends LitElement {
     this.fileInputLabel = null
     this.fileAttachment = null
     this.attachments = []
+    this.selectedAudioItem = null
     this.audioPlayer = document.querySelector('audio-player')
 
     this.handleAttachmentAccepted = this.handleAttachmentAccepted.bind(this)
@@ -30,33 +31,49 @@ class AudioPlaylist extends LitElement {
     return styles
   }
 
+  get playlistItems () {
+    return this.attachments.map(({ file }) => {
+      const content = this.getAudioData(file).then((data) => {
+        return html`
+            <audio-item @click=${(e) => { this.handleAudioItemClick(e, data) }}
+                        audio-title=${data.title}
+                        audio-duration=${this.formatDuration(data.duration)}>`
+      })
+      return html`${until(content, null)}`
+    })
+  }
+
+  handleAudioItemClick (e, data) {
+    this.dispatchAudioData(data)
+    if (this.selectedAudioItem != null) {
+      this.selectedAudioItem.active = false
+    }
+    this.selectedAudioItem = e.target
+    e.target.active = true
+  }
+
+  getAudioData (file) {
+    return new Promise((resolve, reject) => {
+      parseBlob(file).then(
+        ({
+          common: {
+            title,
+            artist,
+            album,
+            picture
+          },
+          format: { duration }
+        }) => { resolve({ file, title, artist, album, picture, duration }) })
+        .catch((err) => { reject(err) })
+    })
+  }
+
   render () {
     return html`
         <file-attachment>
             <label for="input-file">Start adding some files </label>
             <input type="file" id="input-file" accept="audio/*" multiple>
-
-            ${this.attachments.map(({ file }) => {
-                const content = parseBlob(file).then(
-                        ({
-                            common: {
-                                title,
-                                artist,
-                                album,
-                                picture
-                            },
-                            format: { duration }
-                        }) => {
-                            const data = { file, title, artist, album, picture }
-
-                            return html`
-                                <audio-item @click=${() => { this.dispatchAudioData(data) }}
-                                            audio-title=${title} audio-duration=${this.formatDuration(duration)}>`
-                        }
-                )
-
-                return html`${until(content, null)}`
-            })}
+            ${this.playlistItems}
         </file-attachment>
     `
   }
