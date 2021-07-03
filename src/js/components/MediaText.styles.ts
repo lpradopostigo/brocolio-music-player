@@ -6,14 +6,14 @@ export const styles = css`
     overflow: hidden;
   }
 
-  :host > span {
+  .viewport {
     display: inline-block;
     width: inherit;
     height: inherit;
     line-height: normal;
   }
 
-  span > span {
+  .viewbox {
     transition-property: transform;
     transition-duration: 2s;
     white-space: nowrap;
