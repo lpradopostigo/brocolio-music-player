@@ -14,19 +14,19 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
     "eslint": "^7.13.0",
-    "eslint-config-standard": "^16.0.3",
+    "eslint-config-standard-with-typescript": "^20.0.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
-    "snowpack": "^3.5.9",
-    "standard": "^16.0.3"
+    "snowpack": "^3.5.9"
   },
   "dependencies": {
     "@github/file-attachment-element": "^2.0.1",
     "buffer": "^6.0.3",
+    "lit": "^2.0.0-rc.2",
     "modern-normalize": "^1.1.0",
-    "music-metadata-browser": "^2.2.6",
-    "lit": "^2.0.0-rc.2"
+    "music-metadata-browser": "^2.2.6"
   }
 }
