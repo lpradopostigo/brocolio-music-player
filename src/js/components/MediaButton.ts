@@ -2,7 +2,7 @@ import { html, LitElement, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { styles } from './MediaButton.styles'
 
-enum MediaRole {
+export enum MediaRole {
   Play,
   Pause,
   Previous,
