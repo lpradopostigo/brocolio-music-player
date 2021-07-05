@@ -15,11 +15,21 @@ export default class AudioItem extends LitElement {
   @property({ type: Boolean })
   active = false
 
+  get formattedAudioDuration (): string {
+    const minutes = Math.trunc(this.audioDuration / 60)
+    const seconds = Math.trunc(this.audioDuration % 60)
+
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes.toString()
+    const formattedSeconds = minutes < 10 ? `0${seconds}` : seconds.toString()
+
+    return `${formattedMinutes}:${formattedSeconds}`
+  }
+
   render (): TemplateResult {
     return html`
         <div class=${this.active ? 'active' : ''}>
             <media-text value=${this.audioTitle}></media-text>
-            <span>${this.audioDuration}</span>
+            <span>${this.formattedAudioDuration}</span>
         </div>
     `
   }
