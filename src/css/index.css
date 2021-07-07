@@ -13,26 +13,6 @@
     --border-radious-base: 10px;
 }
 
-body {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-audio-player {
-    width: 100%;
-    position: sticky;
-    top: 0;
-    background-color: white;
-    --grid-height-xs: 9rem;
-}
-
-
-audio-playlist {
-    flex: 1;
-}
-
-
 
 
 
