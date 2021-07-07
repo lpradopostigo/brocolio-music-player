@@ -15,6 +15,10 @@ export const styles = css`
     color: var(--color-secondary-light);
   }
 
+  .label--hidden {
+    display: none;
+  }
+
   input {
     opacity: 0;
     width: 0;

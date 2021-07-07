@@ -1,10 +1,10 @@
 import { html, LitElement, TemplateResult } from 'lit'
 import './MediaText'
-import { styles } from './AudioItem.styles'
+import { styles } from './MusicPlaylistItem.styles'
 import { customElement, property } from 'lit/decorators.js'
 
 @customElement('audio-item')
-export default class AudioItem extends LitElement {
+export default class MusicPlaylistItem extends LitElement {
   static styles = styles
   @property({ attribute: 'audio-title' })
   audioTitle = ''

@@ -11,6 +11,7 @@ export interface IAudioMetadata {
   title: string | undefined
   artist: string | undefined
   album: string | undefined
+  duration: number | undefined
 }
 
 export default class AudioMetadataParser {
@@ -29,13 +30,15 @@ export default class AudioMetadataParser {
             artist,
             album,
             picture
-          }
+          },
+          format: { duration }
         }) => {
           resolve({
             albumArt: picture === undefined ? undefined : picture[0],
             title: title,
             artist: artist,
-            album: album
+            album: album,
+            duration: duration
           })
         })
         .catch((err) => { reject(err) })

@@ -6,7 +6,7 @@ export const styles = css`
     --media-button-color: var(--color-secondary);
     --audio-player-gap: 1.25rem;
     --audio-player-picture-size: 9rem;
-    
+
     font-family: sans-serif;
     box-sizing: border-box;
     display: grid;
@@ -56,7 +56,7 @@ export const styles = css`
 
 
   .slider-seek {
-    --slider-seek-height:1.6rem;
+    --slider-seek-height: 1.6rem;
     grid-area: slider-seek;
     width: 100%;
     height: var(--slider-seek-height); /* hitbox size, actual size is 1/4 of the hitbox */
@@ -125,7 +125,6 @@ export const styles = css`
       margin-bottom: calc(var(--slider-seek-height) * 3 / 8 * -1 + 0.5rem);
 
     }
-
 
     .media-button-wrapper {
       padding-bottom: 0;
