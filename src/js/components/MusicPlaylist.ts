@@ -1,19 +1,13 @@
 import { html, LitElement, TemplateResult } from 'lit'
 import { until } from 'lit/directives/until.js'
-import FileAttachmentElement from '@github/file-attachment-element'
-import type { Attachment } from '@github/file-attachment-element'
+import './FileAttachment'
+import type { FileAttachmentElement, Attachment } from './FileAttachment'
 import AudioMetadataParser from '../services/AudioMetadataParser'
 
 import './MusicPlaylistItem'
 import { styles } from './MusicPlaylist.styles'
 import { customElement, state } from 'lit/decorators.js'
 import type MusicPlaylistItem from './MusicPlaylistItem'
-
-declare global {
-  interface HTMLElementEventMap {
-    'file-attachment-accepted': CustomEvent
-  }
-}
 
 @customElement('music-playlist')
 export default class MusicPlaylist extends LitElement {
@@ -70,12 +64,14 @@ export default class MusicPlaylist extends LitElement {
 
     this.fileInputLabel = this.shadowRoot.querySelector('label')
     this.fileAttachment = this.shadowRoot.querySelector('file-attachment')
-    this.addEventListener('file-attachment-accepted', this.handleAttachmentAccepted)
+    console.log(this.fileAttachment)
+    this.fileAttachment?.addEventListener('file-attachment-accepted', this.handleAttachmentAccepted)
   }
 
   handleAttachmentAccepted (e: CustomEvent): void {
     const { detail: { attachments } } = e
     this.fileInputLabel?.classList.add('label--hidden')
     this.attachments = attachments
+    console.log(attachments)
   }
 }
