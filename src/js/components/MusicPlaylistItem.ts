@@ -20,7 +20,7 @@ export default class MusicPlaylistItem extends LitElement {
     const seconds = Math.trunc(this.audioDuration % 60)
 
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes.toString()
-    const formattedSeconds = minutes < 10 ? `0${seconds}` : seconds.toString()
+    const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds.toString()
 
     return `${formattedMinutes}:${formattedSeconds}`
   }
