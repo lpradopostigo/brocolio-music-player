@@ -6,7 +6,7 @@ declare global {
 }
 window.Buffer = Buffer
 
-export interface IAudioMetadata {
+export interface AudioMetadata {
   albumArt: IPicture | undefined
   title: string | undefined
   artist: string | undefined
@@ -21,7 +21,7 @@ export default class AudioMetadataParser {
     this.file = file
   }
 
-  async parse (): Promise<IAudioMetadata> {
+  async parse (): Promise<AudioMetadata> {
     return await new Promise((resolve, reject) => {
       parseBlob(this.file).then(
         ({
