@@ -13,8 +13,9 @@ export default class AudioPlayer {
     return this.audioElement
   }
 
-  changeAudio (file: File): void {
-    this.audioElement = new Audio(URL.createObjectURL(file))
+  changeAudio (file: File | null): void {
+    this.stop()
+    this.audioElement = file != null ? new Audio(URL.createObjectURL(file)) : null
   }
 
   play (): void {
@@ -27,7 +28,7 @@ export default class AudioPlayer {
 
   stop (): void {
     this.pause()
-    this.seek(0)
+    this.audioElement = null
   }
 
   seek (time: number): void {
