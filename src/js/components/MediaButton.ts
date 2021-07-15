@@ -3,10 +3,10 @@ import { customElement, property } from 'lit/decorators.js'
 import { styles } from './MediaButton.styles'
 
 export enum MediaRole {
-  Play,
-  Pause,
-  Previous,
-  Next
+  PLAY = 'play',
+  PAUSE = 'pause',
+  PREVIOUS = 'previous',
+  NEXT = 'next'
 }
 
 @customElement('media-button')
@@ -17,7 +17,7 @@ export default class MediaButton extends LitElement {
 
   mediaSvg: SVGElement | null = null
 
-  constructor (mediaRole = MediaRole.Play) {
+  constructor (mediaRole = MediaRole.PLAY) {
     super()
     this.mediaRole = mediaRole
     this.startAnimation = this.startAnimation.bind(this)
@@ -26,26 +26,26 @@ export default class MediaButton extends LitElement {
 
   render (): TemplateResult {
     switch (this.mediaRole) {
-      case MediaRole.Previous:
+      case MediaRole.PREVIOUS:
         return html`
             <svg viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M24 0V14L12 7L24 0ZM12 0V14L0 7L12 0Z" fill="black"/>
             </svg>
 
         `
-      case MediaRole.Next:
+      case MediaRole.NEXT:
         return html`
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 20V6L12 13L0 20ZM12 20V6L24 13L12 20Z"/>
             </svg>
         `
-      case MediaRole.Pause:
+      case MediaRole.PAUSE:
         return html`
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M11 22H7V2H11V22ZM17 2H13V22H17V2Z"/>
             </svg>
         `
-      case MediaRole.Play:
+      case MediaRole.PLAY:
         return html`
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2 24V0L22 12L2 24Z"/>
