@@ -1,17 +1,5 @@
 import { createStore } from 'redux'
-import type { Action } from '@reduxjs/toolkit'
-
-export enum AudioActionType {
-  PLAY = 'play',
-  PAUSE = 'pause',
-  STOP = 'stop',
-  RESUME = 'resume'
-}
-
-export interface AudioAction extends Action {
-  type: AudioActionType
-  audioFile: File
-}
+import { AudioActionType, AudioAction } from './audioActions'
 
 export enum AudioState {
   PLAYING = 'playing',
@@ -34,6 +22,9 @@ function audioReducer (state: StoreState = {
   switch (action.type) {
     case AudioActionType.PLAY: {
       state.audioState = AudioState.PLAYING
+      if (action.audioFile == null) {
+        throw Error('Audio File missing')
+      }
       state.audioFile = action.audioFile
       break
     }
