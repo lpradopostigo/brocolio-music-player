@@ -9,10 +9,6 @@ export default class AudioPlayer {
     return this.audioElement?.currentTime
   }
 
-  get currentAudio (): HTMLAudioElement | null {
-    return this.audioElement
-  }
-
   changeAudio (file: File | null): void {
     this.stop()
     this.audioElement = file != null ? new Audio(URL.createObjectURL(file)) : null
