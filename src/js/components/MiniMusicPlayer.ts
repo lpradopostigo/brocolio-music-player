@@ -13,7 +13,7 @@ import * as audioActions from '../services/audioActions'
 import type MediaProgress from './MediaProgress'
 import type { AudioMetadata } from '../services/AudioMetadataParser'
 import AudioMetadataParser from '../services/AudioMetadataParser'
-import { valueToPercentage } from '../services/utilities'
+import { percentageToValue, valueToPercentage } from '../services/utilities'
 
 @customElement('mini-music-player')
 export class MiniMusicPlayer extends LitElement {
@@ -93,12 +93,16 @@ export class MiniMusicPlayer extends LitElement {
     return [buttonPrevious, this.active && this.audioIsPlaying ? buttonPause : buttonPlay, buttonNext]
   }
 
-  //
-  // seek () {
-  //   if (this.player != null) {
-  //     this.player.currentTime = percentageToValue(this.sliderSeek.value, this.player.duration)
-  //   }
-  // }
+  handleSeek (): void {
+    if (this.seekBarRef.value == null) {
+      throw Error('Cannot retrieve seek bar')
+    }
+
+    const duration = this.audioDuration()
+    if (duration != null) {
+      store.dispatch(audioActions.seek(percentageToValue(this.seekBarRef.value.value, duration)))
+    }
+  }
 
   connectedCallback (): void {
     super.connectedCallback()
@@ -135,7 +139,7 @@ export class MiniMusicPlayer extends LitElement {
         <div class="media-button-wrapper">
             ${this.mediaButtons}
         </div>
-        <media-progress ${ref(this.seekBarRef)} class="slider-seek"></media-progress>
+        <media-progress ${ref(this.seekBarRef)} class="slider-seek" @click=${this.handleSeek}></media-progress>
     `
   }
 

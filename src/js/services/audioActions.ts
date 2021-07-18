@@ -4,12 +4,14 @@ export enum AudioActionType {
   PLAY = 'play',
   PAUSE = 'pause',
   STOP = 'stop',
-  RESUME = 'resume'
+  RESUME = 'resume',
+  SEEK = 'seek'
 }
 
 export interface AudioAction extends Action {
   readonly type: AudioActionType
   readonly audioFile?: File
+  readonly audioSeekTime?: number
 }
 
 export function play (file: File): AudioAction {
@@ -26,4 +28,8 @@ export function resume (): AudioAction {
 
 export function stop (): AudioAction {
   return { type: AudioActionType.STOP }
+}
+
+export function seek (time: number): AudioAction {
+  return { type: AudioActionType.SEEK, audioSeekTime: time }
 }

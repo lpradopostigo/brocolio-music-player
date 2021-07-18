@@ -17,6 +17,7 @@ export interface StoreState {
   readonly audioFile: File | null
   readonly audioCurrentTime: (() => number | undefined) | null
   readonly audioDuration: (() => number | undefined) | null
+  readonly audioSeekTime: number | null
   readonly lastActionType: StoreActionType
 }
 
@@ -25,6 +26,7 @@ const initialState: StoreState = {
   audioFile: null,
   audioCurrentTime: null,
   audioDuration: null,
+  audioSeekTime: null,
   lastActionType: AudioActionType.STOP
 }
 
@@ -60,6 +62,14 @@ function reducer (state: StoreState = initialState, action: StoreAction): StoreS
 
       case AudioActionType.RESUME: {
         draft.audioState = AudioState.PLAYING
+        break
+      }
+
+      case AudioActionType.SEEK: {
+        if (action.audioSeekTime == null) {
+          throw Error('Audio seek time missing')
+        }
+        draft.audioSeekTime = action.audioSeekTime
         break
       }
     }

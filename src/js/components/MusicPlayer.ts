@@ -61,6 +61,13 @@ export class MusicPlayer extends LitElement {
         this.audioPlayer.pause()
         break
       }
+
+      case AudioActionType.SEEK: {
+        if (state.audioSeekTime != null) {
+          this.audioPlayer.seek(state.audioSeekTime)
+        }
+        break
+      }
     }
   }
 }
