@@ -8,8 +8,8 @@ export enum AudioActionType {
 }
 
 export interface AudioAction extends Action {
-  type: AudioActionType
-  audioFile?: File
+  readonly type: AudioActionType
+  readonly audioFile?: File
 }
 
 export function play (file: File): AudioAction {
