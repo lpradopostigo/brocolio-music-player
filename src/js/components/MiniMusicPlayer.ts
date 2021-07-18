@@ -1,13 +1,19 @@
 import { html, LitElement, svg, TemplateResult } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
+import { ref, createRef } from 'lit/directives/ref.js'
+import type { Ref } from 'lit/directives/ref.js'
 
 import './MediaText'
 import './MediaProgress'
-import MediaButton, { MediaRole } from './MediaButton'
+import { MediaRole } from './MediaButton'
 import { styles } from './MiniMusicPlayer.styles'
+import { AudioState, store } from '../services/store'
+import * as audioActions from '../services/audioActions'
 
 import type MediaProgress from './MediaProgress'
-import type { IAudioMetadata } from '../services/AudioMetadataParser'
+import type { AudioMetadata } from '../services/AudioMetadataParser'
+import AudioMetadataParser from '../services/AudioMetadataParser'
+import { valueToPercentage } from '../services/utilities'
 
 @customElement('mini-music-player')
 export default class MiniMusicPlayer extends LitElement {
@@ -18,43 +24,73 @@ export default class MiniMusicPlayer extends LitElement {
                   fill="white"/>
         </svg>`
 
-  active = false
-  buttonPlay = new MediaButton(MediaRole.Play)
-  buttonPause = new MediaButton(MediaRole.Pause)
-  buttonPrevious = new MediaButton(MediaRole.Previous)
-  buttonNext = new MediaButton(MediaRole.Next)
-  sliderSeek: MediaProgress | null = null
+  @state()
+  audioMetadata: AudioMetadata | null = null
 
   @state()
-  currentAudioData: IAudioMetadata | null = null
+  active = false
+
+  @state()
+  audioIsPlaying = false
+
+  private readonly audioCurrentTime: () => (number | undefined)
+  private readonly audioDuration: () => (number | undefined)
+  private readonly seekBarRef: Ref<MediaProgress> = createRef()
+  private seekBarIntervalId: NodeJS.Timeout | null = null
+
+  constructor () {
+    super()
+    const { audioDuration, audioCurrentTime } = store.getState()
+    if (audioDuration == null || audioCurrentTime == null) {
+      throw Error('Failed to retrieve audio getters')
+    }
+    this.audioDuration = audioDuration
+    this.audioCurrentTime = audioCurrentTime
+
+    this.handleActionDispatched = this.handleActionDispatched.bind(this)
+    this.seekBarValue = this.seekBarValue.bind(this)
+  }
 
   get audioArt (): TemplateResult {
-    if (this.currentAudioData?.albumArt == null) {
+    if (this.audioMetadata?.albumArt == null) {
       return MiniMusicPlayer.defaultAudioArt
     }
-    const { data, format } = this.currentAudioData.albumArt
+    const { data, format } = this.audioMetadata.albumArt
     const imageURL = URL.createObjectURL(new Blob([data], { type: format }))
     return html`<img src=${imageURL} alt="album-art">`
   }
 
-  get audioTextMetadata (): TemplateResult {
-    if (this.active && this.currentAudioData != null) {
+  get audioTextMetadata (): TemplateResult<1> {
+    if (this.active && this.audioMetadata != null) {
       return html`
           <media-text class="audio-title"
-                      value=${this.currentAudioData.title}>
+                      value=${this.audioMetadata.title}>
           </media-text>
 
           <media-text class="audio-artist"
-                      value=${this.currentAudioData.artist}>
+                      value=${this.audioMetadata.artist}>
           </media-text>
 
           <media-text class="audio-album"
-                      value=${this.currentAudioData.album}>
+                      value=${this.audioMetadata.album}>
           </media-text>
       `
     }
 
     return html`<span>Nothing is playing</span>`
+  }
+
+  get mediaButtons (): Array<TemplateResult<1>> {
+    const buttonPrevious = html`
+        <media-button media-role=${MediaRole.PREVIOUS}></media-button>`
+    const buttonNext = html`
+        <media-button media-role=${MediaRole.NEXT}></media-button>`
+    const buttonPlay = html`
+        <media-button media-role=${MediaRole.PLAY} @click=${this.handlePlay}></media-button>`
+    const buttonPause = html`
+        <media-button media-role=${MediaRole.PAUSE} @click=${this.handlePause}></media-button>`
+
+    return [buttonPrevious, this.active && this.audioIsPlaying ? buttonPause : buttonPlay, buttonNext]
   }
 
   //
@@ -64,11 +100,28 @@ export default class MiniMusicPlayer extends LitElement {
   //   }
   // }
 
-  get mediaButtons (): MediaButton[] {
-    return [this.buttonPrevious, this.active ? this.buttonPause : this.buttonPlay, this.buttonNext]
+  connectedCallback (): void {
+    super.connectedCallback()
+    store.subscribe(this.handleActionDispatched)
   }
 
-  render (): TemplateResult {
+  handleActionDispatched (): void {
+    const state = store.getState()
+    if (state.audioState === AudioState.PLAYING && state.audioFile != null) {
+      const metadataParser = new AudioMetadataParser(state.audioFile)
+      metadataParser.parse().then((metadata) => { this.audioMetadata = metadata }, (err) => { console.log(err) })
+      this.active = true
+      this.audioIsPlaying = true
+      this.seekBarIntervalId = setInterval(this.seekBarValue, 1000)
+    } else {
+      this.audioIsPlaying = false
+      if (this.seekBarIntervalId != null) {
+        clearInterval(this.seekBarIntervalId)
+      }
+    }
+  }
+
+  render (): TemplateResult<1> {
     return html`
         <div class="audio-info__picture">
             ${this.audioArt}
@@ -78,27 +131,31 @@ export default class MiniMusicPlayer extends LitElement {
             ${this.audioTextMetadata}
         </div>
 
+
         <div class="media-button-wrapper">
             ${this.mediaButtons}
         </div>
-        <media-progress class="slider-seek"></media-progress>
+        <media-progress ${ref(this.seekBarRef)} class="slider-seek"></media-progress>
     `
   }
 
-  connectedCallback (): void {
-    super.connectedCallback()
-    this.addEventListener('play', () => { console.log('play received') })
+  handlePause (): void {
+    store.dispatch(audioActions.pause())
   }
 
-  // onPause () {
-  //   this.player?.pause()
-  //   this.buttonPause.style.display = 'none'
-  //   this.buttonPlay.style.display = 'initial'
-  // }
-  //
-  // onPlay () {
-  //   this.player?.play()
-  //   this.buttonPause.style.display = 'initial'
-  //   this.buttonPlay.style.display = 'none'
-  // }
+  handlePlay (): void {
+    store.dispatch(audioActions.resume())
+  }
+
+  seekBarValue (): void {
+    if (this.seekBarRef.value == null) {
+      throw Error('Cannot retrieve seek bar')
+    }
+
+    const currentTime = this.audioCurrentTime()
+    const duration = this.audioDuration()
+    if (currentTime !== undefined && duration !== undefined) {
+      this.seekBarRef.value.value = valueToPercentage(currentTime, duration)
+    }
+  }
 }
