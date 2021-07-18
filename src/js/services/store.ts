@@ -1,5 +1,10 @@
 import { createStore } from 'redux'
-import { AudioActionType, AudioAction } from './audioActions'
+import { AudioAction, AudioActionType } from './audioActions'
+import produce from 'immer'
+import { InitAction, InitActionType } from './initActions'
+
+type StoreAction = AudioAction | InitAction
+type StoreActionType = AudioActionType | InitActionType
 
 export enum AudioState {
   PLAYING = 'playing',
@@ -8,44 +13,57 @@ export enum AudioState {
 }
 
 export interface StoreState {
-  audioState: AudioState
-  audioFile: File | null
-  lastActionType: AudioActionType
+  readonly audioState: AudioState
+  readonly audioFile: File | null
+  readonly audioCurrentTime: (() => number | undefined) | null
+  readonly audioDuration: (() => number | undefined) | null
+  readonly lastActionType: StoreActionType
 }
 
-function audioReducer (state: StoreState = {
+const initialState: StoreState = {
   audioState: AudioState.STOPPED,
   audioFile: null,
+  audioCurrentTime: null,
+  audioDuration: null,
   lastActionType: AudioActionType.STOP
-}, action: AudioAction): StoreState {
-  state.lastActionType = action.type
-  switch (action.type) {
-    case AudioActionType.PLAY: {
-      state.audioState = AudioState.PLAYING
-      if (action.audioFile == null) {
-        throw Error('Audio File missing')
-      }
-      state.audioFile = action.audioFile
-      break
-    }
-
-    case AudioActionType.PAUSE: {
-      state.audioState = AudioState.PAUSED
-      break
-    }
-
-    case AudioActionType.STOP: {
-      state.audioState = AudioState.STOPPED
-      state.audioFile = null
-      break
-    }
-
-    case AudioActionType.RESUME: {
-      state.audioState = AudioState.PLAYING
-      break
-    }
-  }
-  return state
 }
 
-export const store = createStore(audioReducer)
+function reducer (state: StoreState = initialState, action: StoreAction): StoreState {
+  return produce(state, (draft) => {
+    draft.lastActionType = action.type
+    switch (action.type) {
+      case InitActionType.SET_AUDIO_TIME: {
+        draft.audioDuration = action.audioDuration
+        draft.audioCurrentTime = action.audioCurrentTime
+        break
+      }
+
+      case AudioActionType.PLAY: {
+        draft.audioState = AudioState.PLAYING
+        if (action.audioFile == null) {
+          throw Error('Audio File missing')
+        }
+        draft.audioFile = action.audioFile
+        break
+      }
+
+      case AudioActionType.PAUSE: {
+        draft.audioState = AudioState.PAUSED
+        break
+      }
+
+      case AudioActionType.STOP: {
+        draft.audioState = AudioState.STOPPED
+        draft.audioFile = null
+        break
+      }
+
+      case AudioActionType.RESUME: {
+        draft.audioState = AudioState.PLAYING
+        break
+      }
+    }
+  })
+}
+
+export const store = createStore(reducer)
