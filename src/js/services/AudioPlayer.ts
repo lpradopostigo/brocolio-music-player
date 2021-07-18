@@ -1,4 +1,4 @@
-export default class AudioPlayer {
+export class AudioPlayer {
   private audioElement: HTMLAudioElement | null = null
 
   get duration (): number | undefined {
