@@ -16,7 +16,7 @@ import AudioMetadataParser from '../services/AudioMetadataParser'
 import { valueToPercentage } from '../services/utilities'
 
 @customElement('mini-music-player')
-export default class MiniMusicPlayer extends LitElement {
+export class MiniMusicPlayer extends LitElement {
   static styles = styles
   static defaultAudioArt = svg`
         <svg class="audio-art__default" viewBox="0 0 114 108" xmlns="http://www.w3.org/2000/svg">

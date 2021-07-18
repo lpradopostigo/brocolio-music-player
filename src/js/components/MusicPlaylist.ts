@@ -12,7 +12,7 @@ import { store } from '../services/store'
 import * as audioActions from '../services/audioActions'
 
 @customElement('music-playlist')
-export default class MusicPlaylist extends LitElement {
+export class MusicPlaylist extends LitElement {
   static styles = styles
   @state()
   attachments: Attachment[] = []

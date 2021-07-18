@@ -10,7 +10,7 @@ import * as initActions from '../services/initActions'
 import { AudioActionType } from '../services/audioActions'
 
 @customElement('music-player')
-export default class MusicPlayer extends LitElement {
+export class MusicPlayer extends LitElement {
   static styles = styles
   private readonly audioPlayer = new AudioPlayer()
   private storeUnsubscribe: Unsubscribe | null = null
