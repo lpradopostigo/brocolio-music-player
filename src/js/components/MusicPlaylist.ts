@@ -1,13 +1,15 @@
 import { html, LitElement, TemplateResult } from 'lit'
 import { until } from 'lit/directives/until.js'
 import './FileAttachment'
-import type { FileAttachmentElement, Attachment } from './FileAttachment'
+import type { Attachment, FileAttachmentElement } from './FileAttachment'
 import AudioMetadataParser from '../services/AudioMetadataParser'
 
 import './MusicPlaylistItem'
 import { styles } from './MusicPlaylist.styles'
 import { customElement, state } from 'lit/decorators.js'
 import type MusicPlaylistItem from './MusicPlaylistItem'
+import { store } from '../services/store'
+import * as audioActions from '../services/audioActions'
 
 @customElement('music-playlist')
 export default class MusicPlaylist extends LitElement {
@@ -43,11 +45,12 @@ export default class MusicPlaylist extends LitElement {
     if (this.selectedAudioItem != null) {
       this.selectedAudioItem.active = false
     }
+    store.dispatch(audioActions.play(file))
     this.selectedAudioItem = target
     this.selectedAudioItem.active = true
   }
 
-  render (): TemplateResult {
+  render (): TemplateResult<1> {
     return html`
         <file-attachment>
             <label for="input-file">Start adding some files </label>
@@ -64,7 +67,6 @@ export default class MusicPlaylist extends LitElement {
 
     this.fileInputLabel = this.shadowRoot.querySelector('label')
     this.fileAttachment = this.shadowRoot.querySelector('file-attachment')
-    console.log(this.fileAttachment)
     this.fileAttachment?.addEventListener('file-attachment-accepted', this.handleAttachmentAccepted)
   }
 
@@ -72,6 +74,5 @@ export default class MusicPlaylist extends LitElement {
     const { detail: { attachments } } = e
     this.fileInputLabel?.classList.add('label--hidden')
     this.attachments = attachments
-    console.log(attachments)
   }
 }
