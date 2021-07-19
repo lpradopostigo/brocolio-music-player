@@ -6,7 +6,7 @@ import type { Ref } from 'lit/directives/ref.js'
 import './MediaText'
 import './MediaProgress'
 import { MediaRole } from './MediaButton'
-import { styles } from './MiniMusicPlayer.styles'
+import { styles } from '../styles/MiniMusicPlayer.styles'
 import { AudioState, store } from '../services/store'
 import * as audioActions from '../services/audioActions'
 

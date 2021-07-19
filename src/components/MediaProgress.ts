@@ -1,6 +1,6 @@
 import { html, LitElement, TemplateResult } from 'lit'
 import { valueToPercentage } from '../services/utilities'
-import { styles } from './MediaProgress.styles'
+import { styles } from '../styles/MediaProgress.styles'
 import { customElement, property } from 'lit/decorators.js'
 
 @customElement('media-progress')

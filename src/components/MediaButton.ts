@@ -1,6 +1,6 @@
 import { html, LitElement, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { styles } from './MediaButton.styles'
+import { styles } from '../styles/MediaButton.styles'
 
 export enum MediaRole {
   PLAY = 'play',

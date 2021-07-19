@@ -5,7 +5,7 @@ import type { Attachment, FileAttachmentElement } from './FileAttachment'
 import AudioMetadataParser from '../services/AudioMetadataParser'
 
 import './MusicPlaylistItem'
-import { styles } from './MusicPlaylist.styles'
+import { styles } from '../styles/MusicPlaylist.styles'
 import { customElement, state } from 'lit/decorators.js'
 import type MusicPlaylistItem from './MusicPlaylistItem'
 import { store } from '../services/store'

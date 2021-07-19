@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "snowpack dev --polyfill-node",
     "clean": "rm -rf dist build",
-    "pre": "cp node_modules/modern-normalize/modern-normalize.css src/css",
+    "pre": "cp node_modules/modern-normalize/modern-normalize.css src/styles",
     "build": "npm run pre && snowpack build --polyfill-node"
   },
   "keywords": [],

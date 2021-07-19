@@ -1,5 +1,5 @@
 import { html, LitElement, TemplateResult } from 'lit'
-import { styles } from './MediaText.styles'
+import { styles } from '../styles/MediaText.styles'
 import { customElement, property } from 'lit/decorators.js'
 
 @customElement('media-text')

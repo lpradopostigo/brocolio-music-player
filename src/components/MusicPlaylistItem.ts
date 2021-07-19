@@ -1,6 +1,6 @@
 import { html, LitElement, TemplateResult } from 'lit'
 import './MediaText'
-import { styles } from './MusicPlaylistItem.styles'
+import { styles } from '../styles/MusicPlaylistItem.styles'
 import { customElement, property } from 'lit/decorators.js'
 
 @customElement('audio-item')
