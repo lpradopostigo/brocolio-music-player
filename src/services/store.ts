@@ -18,6 +18,7 @@ export interface StoreState {
   readonly audioCurrentTime: (() => number | undefined) | null
   readonly audioDuration: (() => number | undefined) | null
   readonly audioSeekTime: number | null
+  readonly audioPlaylist: File[]
   readonly lastActionType: StoreActionType
 }
 
@@ -27,6 +28,7 @@ const initialState: StoreState = {
   audioCurrentTime: null,
   audioDuration: null,
   audioSeekTime: null,
+  audioPlaylist: [],
   lastActionType: AudioActionType.STOP
 }
 
@@ -71,6 +73,13 @@ function reducer (state: StoreState = initialState, action: StoreAction): StoreS
         }
         draft.audioSeekTime = action.audioSeekTime
         break
+      }
+
+      case AudioActionType.ADD_PLAYLIST: {
+        if (action.audioPlaylist == null) {
+          throw Error('Audio playlist  missing')
+        }
+        draft.audioPlaylist = action.audioPlaylist
       }
     }
   })
