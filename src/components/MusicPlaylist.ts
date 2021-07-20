@@ -10,12 +10,12 @@ import { customElement, state } from 'lit/decorators.js'
 import type MusicPlaylistItem from './MusicPlaylistItem'
 import { store } from '../services/store'
 import * as audioActions from '../services/audioActions'
+import { AudioActionType } from '../services/audioActions'
 
 @customElement('music-playlist')
 export class MusicPlaylist extends LitElement {
   static styles = styles
-  @state()
-  attachments: Attachment[] = []
+  @state() playlistItems: Array<TemplateResult<1>> = []
 
   private fileAttachment: FileAttachmentElement | null = null
   private fileInputLabel: HTMLLabelElement | null = null
@@ -24,29 +24,36 @@ export class MusicPlaylist extends LitElement {
   constructor () {
     super()
     this.handleAttachmentAccepted = this.handleAttachmentAccepted.bind(this)
+    this.onPlaylistAdded = this.onPlaylistAdded.bind(this)
   }
 
-  get playlistItems (): TemplateResult[] {
-    return this.attachments.map(({ file }) => {
-      const metadataParser = new AudioMetadataParser(file)
-      const content = metadataParser.parse().then((data) => {
-        return html`
-            <audio-item @click=${(e: MouseEvent) => { this.handleAudioItemClick(e, file) }}
-                        audio-title=${data.title}
-                        audio-duration=${data.duration}>`
+  connectedCallback (): void {
+    super.connectedCallback()
+    store.subscribe(this.onPlaylistAdded)
+  }
+
+  onPlaylistAdded (): void {
+    const state = store.getState()
+    if (state.lastActionType === AudioActionType.ADD_PLAYLIST) {
+      this.playlistItems = state.audioPlaylist.map((file) => {
+        const metadataParser = new AudioMetadataParser(file)
+        const content = metadataParser.parse().then((data) => {
+          return html`
+              <audio-item @click=${(event: MouseEvent) => { this.handleAudioItemClick(event, file) }}
+                          audio-title=${data.title}
+                          audio-duration=${data.duration}>`
+        })
+        return html`${until(content, null)}`
       })
-      return html`${until(content, null)}`
-    })
+    }
   }
 
-  handleAudioItemClick (e: MouseEvent, file: File): void {
-    const target = e.target as MusicPlaylistItem
-
+  handleAudioItemClick (event: MouseEvent, file: File): void {
     if (this.selectedAudioItem != null) {
       this.selectedAudioItem.active = false
     }
     store.dispatch(audioActions.play(file))
-    this.selectedAudioItem = target
+    this.selectedAudioItem = event.target as MusicPlaylistItem
     this.selectedAudioItem.active = true
   }
 
@@ -71,8 +78,10 @@ export class MusicPlaylist extends LitElement {
   }
 
   handleAttachmentAccepted (e: CustomEvent): void {
-    const { detail: { attachments } } = e
     this.fileInputLabel?.classList.add('label--hidden')
-    this.attachments = attachments
+
+    const attachments = e.detail.attachments as Attachment[]
+    const files = attachments.map(attachment => attachment.file)
+    store.dispatch(audioActions.addPlaylist(files))
   }
 }

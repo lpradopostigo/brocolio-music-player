@@ -1,7 +1,7 @@
 import { html, LitElement, TemplateResult } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import './MiniMusicPlayer'
 import './MusicPlaylist'
+import './MiniMusicPlayer'
 import { AudioPlayer } from '../services/AudioPlayer'
 import { styles } from '../styles/MusicPlayer.styles'
 import { store } from '../services/store'
