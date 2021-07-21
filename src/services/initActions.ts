@@ -1,7 +1,7 @@
 import { Action } from '@reduxjs/toolkit'
 
 export enum InitActionType {
-  SET_AUDIO_TIME = 'setAudioPlayer'
+  SET_AUDIO_GETTERS = 'setAudioGetters'
 }
 
 export interface InitAction extends Action {
@@ -10,6 +10,6 @@ export interface InitAction extends Action {
   readonly audioDuration: () => number | undefined
 }
 
-export function setAudioTime (audioCurrentTime: () => number | undefined, audioDuration: () => number | undefined): InitAction {
-  return { type: InitActionType.SET_AUDIO_TIME, audioCurrentTime: audioCurrentTime, audioDuration: audioDuration }
+export function setAudioGetters (audioCurrentTime: () => number | undefined, audioDuration: () => number | undefined): InitAction {
+  return { type: InitActionType.SET_AUDIO_GETTERS, audioCurrentTime: audioCurrentTime, audioDuration: audioDuration }
 }
