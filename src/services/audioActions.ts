@@ -11,13 +11,11 @@ export enum AudioActionType {
 
 export interface AudioAction extends Action {
   readonly type: AudioActionType
-  readonly audioFile?: File
-  readonly audioSeekTime?: number
-  readonly audioPlaylist?: File[]
+  readonly payload?: { index?: number, seekTime?: number, files?: File[] }
 }
 
-export function play (file: File): AudioAction {
-  return { type: AudioActionType.PLAY, audioFile: file }
+export function play (index: number): AudioAction {
+  return { type: AudioActionType.PLAY, payload: { index: index } }
 }
 
 export function pause (): AudioAction {
@@ -29,7 +27,7 @@ export function resume (): AudioAction {
 }
 
 export function addPlaylist (files: File[]): AudioAction {
-  return { type: AudioActionType.ADD_PLAYLIST, audioPlaylist: files }
+  return { type: AudioActionType.ADD_PLAYLIST, payload: { files: files } }
 }
 
 export function stop (): AudioAction {
@@ -37,5 +35,5 @@ export function stop (): AudioAction {
 }
 
 export function seek (time: number): AudioAction {
-  return { type: AudioActionType.SEEK, audioSeekTime: time }
+  return { type: AudioActionType.SEEK, payload: { seekTime: time } }
 }
