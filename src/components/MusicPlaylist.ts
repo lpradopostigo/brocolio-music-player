@@ -24,22 +24,22 @@ export class MusicPlaylist extends LitElement {
   constructor () {
     super()
     this.handleAttachmentAccepted = this.handleAttachmentAccepted.bind(this)
-    this.onPlaylistAdded = this.onPlaylistAdded.bind(this)
+    this.handleAddPlaylist = this.handleAddPlaylist.bind(this)
   }
 
   connectedCallback (): void {
     super.connectedCallback()
-    store.subscribe(this.onPlaylistAdded)
+    store.subscribe(this.handleAddPlaylist)
   }
 
-  onPlaylistAdded (): void {
-    const state = store.getState()
-    if (state.lastActionType === AudioActionType.ADD_PLAYLIST) {
-      this.playlistItems = state.audioPlaylist.map((file) => {
+  handleAddPlaylist (): void {
+    const { lastActionType, audioPlaylist: { files } } = store.getState()
+    if (lastActionType === AudioActionType.ADD_PLAYLIST) {
+      this.playlistItems = files.map((file, index) => {
         const metadataParser = new AudioMetadataParser(file)
         const content = metadataParser.parse().then((data) => {
           return html`
-              <audio-item @click=${(event: MouseEvent) => { this.handleAudioItemClick(event, file) }}
+              <audio-item @click=${(event: MouseEvent) => { this.handleAudioItemClick(event, index) }}
                           audio-title=${data.title}
                           audio-duration=${data.duration}>`
         })
@@ -48,11 +48,11 @@ export class MusicPlaylist extends LitElement {
     }
   }
 
-  handleAudioItemClick (event: MouseEvent, file: File): void {
+  handleAudioItemClick (event: MouseEvent, index: number): void {
     if (this.selectedAudioItem != null) {
       this.selectedAudioItem.active = false
     }
-    store.dispatch(audioActions.play(file))
+    store.dispatch(audioActions.play(index))
     this.selectedAudioItem = event.target as MusicPlaylistItem
     this.selectedAudioItem.active = true
   }
@@ -69,7 +69,7 @@ export class MusicPlaylist extends LitElement {
 
   firstUpdated (): void {
     if (this.shadowRoot == null) {
-      throw Error('Cannot get ShadowRoot')
+      throw Error('cannot get ShadowRoot')
     }
 
     this.fileInputLabel = this.shadowRoot.querySelector('label')

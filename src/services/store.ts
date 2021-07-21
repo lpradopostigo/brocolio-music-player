@@ -12,23 +12,27 @@ export enum AudioState {
   STOPPED = 'stopped'
 }
 
+interface AudioInformation {
+  readonly state: AudioState
+  readonly currentTime: (() => number | undefined) | null
+  readonly duration: (() => number | undefined) | null
+}
+
+interface AudioPlaylist {
+  readonly files: File[]
+  readonly currentIndex: number
+}
+
 export interface StoreState {
-  readonly audioState: AudioState
-  readonly audioFile: File | null
-  readonly audioCurrentTime: (() => number | undefined) | null
-  readonly audioDuration: (() => number | undefined) | null
-  readonly audioSeekTime: number | null
-  readonly audioPlaylist: File[]
+  readonly audioPlaylist: AudioPlaylist
+  readonly audioInformation: AudioInformation
+  readonly audioSeekTime?: number
   readonly lastActionType: StoreActionType
 }
 
 const initialState: StoreState = {
-  audioState: AudioState.STOPPED,
-  audioFile: null,
-  audioCurrentTime: null,
-  audioDuration: null,
-  audioSeekTime: null,
-  audioPlaylist: [],
+  audioPlaylist: { files: [], currentIndex: 0 },
+  audioInformation: { state: AudioState.STOPPED, currentTime: null, duration: null },
   lastActionType: AudioActionType.STOP
 }
 
@@ -36,50 +40,50 @@ function reducer (state: StoreState = initialState, action: StoreAction): StoreS
   return produce(state, (draft) => {
     draft.lastActionType = action.type
     switch (action.type) {
-      case InitActionType.SET_AUDIO_TIME: {
-        draft.audioDuration = action.audioDuration
-        draft.audioCurrentTime = action.audioCurrentTime
+      case InitActionType.SET_AUDIO_GETTERS: {
+        draft.audioInformation.duration = action.audioDuration
+        draft.audioInformation.currentTime = action.audioCurrentTime
         break
       }
 
       case AudioActionType.PLAY: {
-        draft.audioState = AudioState.PLAYING
-        if (action.audioFile == null) {
-          throw Error('Audio File missing')
+        draft.audioInformation.state = AudioState.PLAYING
+        if (action.payload?.index == null) {
+          throw Error('audio index is missing')
         }
-        draft.audioFile = action.audioFile
+        draft.audioPlaylist.currentIndex = action.payload.index
         break
       }
 
       case AudioActionType.PAUSE: {
-        draft.audioState = AudioState.PAUSED
+        draft.audioInformation.state = AudioState.PAUSED
         break
       }
 
       case AudioActionType.STOP: {
-        draft.audioState = AudioState.STOPPED
-        draft.audioFile = null
+        draft.audioInformation.state = AudioState.STOPPED
+        draft.audioPlaylist.currentIndex = 0
         break
       }
 
       case AudioActionType.RESUME: {
-        draft.audioState = AudioState.PLAYING
+        draft.audioInformation.state = AudioState.PLAYING
         break
       }
 
       case AudioActionType.SEEK: {
-        if (action.audioSeekTime == null) {
-          throw Error('Audio seek time missing')
+        if (action.payload?.seekTime == null) {
+          throw Error('audio seek time missing')
         }
-        draft.audioSeekTime = action.audioSeekTime
+        draft.audioSeekTime = action.payload.seekTime
         break
       }
 
       case AudioActionType.ADD_PLAYLIST: {
-        if (action.audioPlaylist == null) {
-          throw Error('Audio playlist  missing')
+        if (action.payload?.files == null) {
+          throw Error('audio playlist files are  missing')
         }
-        draft.audioPlaylist = action.audioPlaylist
+        draft.audioPlaylist.files = action.payload.files
       }
     }
   })

@@ -17,7 +17,7 @@ export class MusicPlayer extends LitElement {
 
   constructor () {
     super()
-    store.dispatch(initActions.setAudioTime(
+    store.dispatch(initActions.setAudioGetters(
       () => { return this.audioPlayer.currentTime },
       () => { return this.audioPlayer.duration }))
     this.handleActionDispatched = this.handleActionDispatched.bind(this)
@@ -44,10 +44,10 @@ export class MusicPlayer extends LitElement {
   }
 
   handleActionDispatched (): void {
-    const state = store.getState()
-    switch (state.lastActionType) {
+    const { lastActionType, audioPlaylist: { files, currentIndex }, audioSeekTime } = store.getState()
+    switch (lastActionType) {
       case AudioActionType.PLAY: {
-        this.audioPlayer.changeAudio(state.audioFile)
+        this.audioPlayer.changeAudio(files[currentIndex])
         this.audioPlayer.play()
         break
       }
@@ -63,8 +63,8 @@ export class MusicPlayer extends LitElement {
       }
 
       case AudioActionType.SEEK: {
-        if (state.audioSeekTime != null) {
-          this.audioPlayer.seek(state.audioSeekTime)
+        if (audioSeekTime != null) {
+          this.audioPlayer.seek(audioSeekTime)
         }
         break
       }

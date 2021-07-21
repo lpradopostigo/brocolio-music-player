@@ -40,12 +40,15 @@ export class MiniMusicPlayer extends LitElement {
 
   constructor () {
     super()
-    const { audioDuration, audioCurrentTime } = store.getState()
-    if (audioDuration == null || audioCurrentTime == null) {
-      throw Error('Failed to retrieve audio getters')
+    const {
+      audioInformation:
+        { duration, currentTime }
+    } = store.getState()
+    if (duration == null || currentTime == null) {
+      throw Error('failed to retrieve audio time getters')
     }
-    this.audioDuration = audioDuration
-    this.audioCurrentTime = audioCurrentTime
+    this.audioDuration = duration
+    this.audioCurrentTime = currentTime
 
     this.handleActionDispatched = this.handleActionDispatched.bind(this)
     this.seekBarValue = this.seekBarValue.bind(this)
@@ -110,9 +113,9 @@ export class MiniMusicPlayer extends LitElement {
   }
 
   handleActionDispatched (): void {
-    const state = store.getState()
-    if (state.audioState === AudioState.PLAYING && state.audioFile != null) {
-      const metadataParser = new AudioMetadataParser(state.audioFile)
+    const { audioInformation: { state }, audioPlaylist: { files, currentIndex } } = store.getState()
+    if (state === AudioState.PLAYING) {
+      const metadataParser = new AudioMetadataParser(files[currentIndex])
       metadataParser.parse().then((metadata) => { this.audioMetadata = metadata }, (err) => { console.log(err) })
       this.active = true
       this.audioIsPlaying = true
