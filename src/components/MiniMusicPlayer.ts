@@ -1,7 +1,6 @@
 import { html, LitElement, svg, TemplateResult } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { ref, createRef } from 'lit/directives/ref.js'
-import type { Ref } from 'lit/directives/ref.js'
 
 import './MediaText'
 import './MediaProgress'
@@ -9,11 +8,11 @@ import { MediaRole } from './MediaButton'
 import { styles } from '../styles/MiniMusicPlayer.styles'
 import { AudioState, store } from '../services/store'
 import * as audioActions from '../services/audioActions'
+import AudioMetadataParser from '../services/AudioMetadataParser'
+import { percentageToValue, valueToPercentage } from '../services/utilities'
 
 import type MediaProgress from './MediaProgress'
 import type { AudioMetadata } from '../services/AudioMetadataParser'
-import AudioMetadataParser from '../services/AudioMetadataParser'
-import { percentageToValue, valueToPercentage } from '../services/utilities'
 
 @customElement('mini-music-player')
 export class MiniMusicPlayer extends LitElement {
@@ -24,29 +23,22 @@ export class MiniMusicPlayer extends LitElement {
                   fill="white"/>
         </svg>`
 
-  @state()
-  audioMetadata: AudioMetadata | null = null
-
-  @state()
-  active = false
-
-  @state()
-  audioIsPlaying = false
+  @state() audioMetadata: AudioMetadata | null = null
+  @state() active = false
+  @state() audioIsPlaying = false
 
   private readonly audioCurrentTime: () => (number | undefined)
   private readonly audioDuration: () => (number | undefined)
-  private readonly seekBarRef: Ref<MediaProgress> = createRef()
+  private readonly seekBarRef = createRef<MediaProgress>()
   private seekBarIntervalId: NodeJS.Timeout | null = null
 
   constructor () {
     super()
-    const {
-      audioInformation:
-        { duration, currentTime }
-    } = store.getState()
+    const { audioInformation: { duration, currentTime } } = store.getState()
     if (duration == null || currentTime == null) {
       throw Error('failed to retrieve audio time getters')
     }
+
     this.audioDuration = duration
     this.audioCurrentTime = currentTime
 
@@ -98,7 +90,7 @@ export class MiniMusicPlayer extends LitElement {
 
   handleSeek (): void {
     if (this.seekBarRef.value == null) {
-      throw Error('Cannot retrieve seek bar')
+      throw Error('cannot retrieve seek bar')
     }
 
     const duration = this.audioDuration()
@@ -156,7 +148,7 @@ export class MiniMusicPlayer extends LitElement {
 
   seekBarValue (): void {
     if (this.seekBarRef.value == null) {
-      throw Error('Cannot retrieve seek bar')
+      throw Error('cannot retrieve seek bar')
     }
 
     const currentTime = this.audioCurrentTime()
