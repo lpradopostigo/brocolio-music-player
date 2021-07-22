@@ -46,7 +46,7 @@ export class MiniMusicPlayer extends LitElement {
     this.seekBarValue = this.seekBarValue.bind(this)
   }
 
-  get audioArt (): TemplateResult {
+  private get audioArt (): TemplateResult {
     if (this.audioMetadata?.albumArt == null) {
       return MiniMusicPlayer.defaultAudioArt
     }
@@ -55,7 +55,7 @@ export class MiniMusicPlayer extends LitElement {
     return html`<img src=${imageURL} alt="album-art">`
   }
 
-  get audioTextMetadata (): TemplateResult<1> {
+  private get audioTextMetadata (): TemplateResult<1> {
     if (this.active && this.audioMetadata != null) {
       return html`
           <media-text class="audio-title"
@@ -75,49 +75,38 @@ export class MiniMusicPlayer extends LitElement {
     return html`<span>Nothing is playing</span>`
   }
 
-  get mediaButtons (): Array<TemplateResult<1>> {
+  private get mediaButtons (): Array<TemplateResult<1>> {
     const buttonPrevious = html`
-        <media-button media-role=${MediaRole.PREVIOUS}></media-button>`
+        <media-button media-role=${MediaRole.PREVIOUS} @click=${MiniMusicPlayer.handlePrevious}></media-button>`
     const buttonNext = html`
-        <media-button media-role=${MediaRole.NEXT} @click=${this.handleNext}></media-button>`
+        <media-button media-role=${MediaRole.NEXT} @click=${MiniMusicPlayer.handleNext}></media-button>`
     const buttonPlay = html`
-        <media-button media-role=${MediaRole.PLAY} @click=${this.handlePlay}></media-button>`
+        <media-button media-role=${MediaRole.PLAY} @click=${MiniMusicPlayer.handlePlay}></media-button>`
     const buttonPause = html`
-        <media-button media-role=${MediaRole.PAUSE} @click=${this.handlePause}></media-button>`
+        <media-button media-role=${MediaRole.PAUSE} @click=${MiniMusicPlayer.handlePause}></media-button>`
 
     return [buttonPrevious, this.active && this.audioIsPlaying ? buttonPause : buttonPlay, buttonNext]
   }
 
-  handleSeek (): void {
-    if (this.seekBarRef.value == null) {
-      throw Error('cannot retrieve seek bar')
-    }
+  private static handlePause (): void {
+    store.dispatch(audioActions.pause())
+  }
 
-    const duration = this.audioDuration()
-    if (duration != null) {
-      store.dispatch(audioActions.seek(percentageToValue(this.seekBarRef.value.value, duration)))
-    }
+  private static handlePlay (): void {
+    store.dispatch(audioActions.resume())
+  }
+
+  private static handleNext (): void {
+    store.dispatch(audioActions.next())
+  }
+
+  private static handlePrevious (): void {
+    store.dispatch(audioActions.previous())
   }
 
   connectedCallback (): void {
     super.connectedCallback()
     store.subscribe(this.handleActionDispatched)
-  }
-
-  handleActionDispatched (): void {
-    const { audioInformation: { state }, audioPlaylist: { files, currentIndex } } = store.getState()
-    if (state === AudioState.PLAYING && currentIndex != null) {
-      const metadataParser = new AudioMetadataParser(files[currentIndex])
-      metadataParser.parse().then((metadata) => { this.audioMetadata = metadata }, (err) => { console.log(err) })
-      this.active = true
-      this.audioIsPlaying = true
-      this.seekBarIntervalId = setInterval(this.seekBarValue, 1000)
-    } else {
-      this.audioIsPlaying = false
-      if (this.seekBarIntervalId != null) {
-        clearInterval(this.seekBarIntervalId)
-      }
-    }
   }
 
   render (): TemplateResult<1> {
@@ -137,19 +126,34 @@ export class MiniMusicPlayer extends LitElement {
     `
   }
 
-  handlePause (): void {
-    store.dispatch(audioActions.pause())
+  private handleSeek (): void {
+    if (this.seekBarRef.value == null) {
+      throw Error('cannot retrieve seek bar')
+    }
+
+    const duration = this.audioDuration()
+    if (duration != null) {
+      store.dispatch(audioActions.seek(percentageToValue(this.seekBarRef.value.value, duration)))
+    }
   }
 
-  handlePlay (): void {
-    store.dispatch(audioActions.resume())
+  private handleActionDispatched (): void {
+    const { audioInformation: { state }, audioPlaylist: { files, currentIndex } } = store.getState()
+    if (state === AudioState.PLAYING && currentIndex != null) {
+      const metadataParser = new AudioMetadataParser(files[currentIndex])
+      metadataParser.parse().then((metadata) => { this.audioMetadata = metadata }, (err) => { console.log(err) })
+      this.active = true
+      this.audioIsPlaying = true
+      this.seekBarIntervalId = setInterval(this.seekBarValue, 1000)
+    } else {
+      this.audioIsPlaying = false
+      if (this.seekBarIntervalId != null) {
+        clearInterval(this.seekBarIntervalId)
+      }
+    }
   }
 
-  handleNext (): void {
-    store.dispatch(audioActions.next())
-  }
-
-  seekBarValue (): void {
+  private seekBarValue (): void {
     if (this.seekBarRef.value == null) {
       throw Error('cannot retrieve seek bar')
     }
