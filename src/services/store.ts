@@ -72,12 +72,30 @@ function reducer (state: StoreState = initialState, action: StoreAction): StoreS
       }
 
       case AudioActionType.NEXT: {
-        if (draft.audioPlaylist.currentIndex == null) {
+        const currentIndex = draft.audioPlaylist.currentIndex
+        const filesLength = draft.audioPlaylist.files.length
+
+        if (currentIndex == null) {
+          throw Error('index is missing')
+        }
+        draft.audioPlaylist.currentIndex = (currentIndex + 1) % filesLength
+        break
+      }
+
+      case AudioActionType.PREVIOUS: {
+        let currentIndex = draft.audioPlaylist.currentIndex
+        const filesLength = draft.audioPlaylist.files.length
+
+        if (currentIndex == null) {
           throw Error('index is missing')
         }
 
-        draft.audioPlaylist.currentIndex += 1
-        draft.audioPlaylist.currentIndex %= draft.audioPlaylist.files.length
+        if (currentIndex > 0) {
+          currentIndex -= 1
+          draft.audioPlaylist.currentIndex = currentIndex
+        } else {
+          draft.audioPlaylist.currentIndex = filesLength - 1
+        }
         break
       }
 
