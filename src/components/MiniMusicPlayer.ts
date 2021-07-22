@@ -79,7 +79,7 @@ export class MiniMusicPlayer extends LitElement {
     const buttonPrevious = html`
         <media-button media-role=${MediaRole.PREVIOUS}></media-button>`
     const buttonNext = html`
-        <media-button media-role=${MediaRole.NEXT}></media-button>`
+        <media-button media-role=${MediaRole.NEXT} @click=${this.handleNext}></media-button>`
     const buttonPlay = html`
         <media-button media-role=${MediaRole.PLAY} @click=${this.handlePlay}></media-button>`
     const buttonPause = html`
@@ -106,7 +106,7 @@ export class MiniMusicPlayer extends LitElement {
 
   handleActionDispatched (): void {
     const { audioInformation: { state }, audioPlaylist: { files, currentIndex } } = store.getState()
-    if (state === AudioState.PLAYING) {
+    if (state === AudioState.PLAYING && currentIndex != null) {
       const metadataParser = new AudioMetadataParser(files[currentIndex])
       metadataParser.parse().then((metadata) => { this.audioMetadata = metadata }, (err) => { console.log(err) })
       this.active = true
@@ -130,7 +130,6 @@ export class MiniMusicPlayer extends LitElement {
             ${this.audioTextMetadata}
         </div>
 
-
         <div class="media-button-wrapper">
             ${this.mediaButtons}
         </div>
@@ -144,6 +143,10 @@ export class MiniMusicPlayer extends LitElement {
 
   handlePlay (): void {
     store.dispatch(audioActions.resume())
+  }
+
+  handleNext (): void {
+    store.dispatch(audioActions.next())
   }
 
   seekBarValue (): void {

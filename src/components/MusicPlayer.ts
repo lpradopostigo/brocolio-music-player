@@ -47,8 +47,10 @@ export class MusicPlayer extends LitElement {
     const { lastActionType, audioPlaylist: { files, currentIndex }, audioSeekTime } = store.getState()
     switch (lastActionType) {
       case AudioActionType.PLAY: {
-        this.audioPlayer.changeAudio(files[currentIndex])
-        this.audioPlayer.play()
+        if (currentIndex != null) {
+          this.audioPlayer.changeAudio(files[currentIndex])
+          this.audioPlayer.play()
+        }
         break
       }
 
@@ -59,6 +61,22 @@ export class MusicPlayer extends LitElement {
 
       case AudioActionType.PAUSE: {
         this.audioPlayer.pause()
+        break
+      }
+
+      case AudioActionType.NEXT: {
+        if (currentIndex != null) {
+          this.audioPlayer.changeAudio(files[currentIndex])
+          this.audioPlayer.play()
+        }
+        break
+      }
+
+      case AudioActionType.PREVIOUS: {
+        if (currentIndex != null) {
+          this.audioPlayer.changeAudio(files[currentIndex])
+          this.audioPlayer.play()
+        }
         break
       }
 
