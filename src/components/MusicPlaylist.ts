@@ -8,53 +8,33 @@ import './MusicPlaylistItem'
 import { styles } from '../styles/MusicPlaylist.styles'
 import { customElement, state } from 'lit/decorators.js'
 import type MusicPlaylistItem from './MusicPlaylistItem'
-import { store } from '../services/store'
+import { store, StoreState } from '../services/store'
 import * as audioActions from '../services/audioActions'
 import { AudioActionType } from '../services/audioActions'
+import { Ref, createRef, ref } from 'lit/directives/ref.js'
 
 @customElement('music-playlist')
 export class MusicPlaylist extends LitElement {
   static styles = styles
+
   @state() playlistItems: Array<TemplateResult<1>> = []
 
+  private playlistItemRefs: Array<Ref<MusicPlaylistItem>> = []
   private fileAttachment: FileAttachmentElement | null = null
   private fileInputLabel: HTMLLabelElement | null = null
-  private selectedAudioItem: MusicPlaylistItem | null = null
+  private selectedPlaylistItem: MusicPlaylistItem | null = null
 
   constructor () {
     super()
     this.handleAttachmentAccepted = this.handleAttachmentAccepted.bind(this)
     this.handleAddPlaylist = this.handleAddPlaylist.bind(this)
+    this.handleAudioItemClick = this.handleAudioItemClick.bind(this)
+    this.handleActionDispatched = this.handleActionDispatched.bind(this)
   }
 
   connectedCallback (): void {
     super.connectedCallback()
-    store.subscribe(this.handleAddPlaylist)
-  }
-
-  handleAddPlaylist (): void {
-    const { lastActionType, audioPlaylist: { files } } = store.getState()
-    if (lastActionType === AudioActionType.ADD_PLAYLIST) {
-      this.playlistItems = files.map((file, index) => {
-        const metadataParser = new AudioMetadataParser(file)
-        const content = metadataParser.parse().then((data) => {
-          return html`
-              <audio-item @click=${(event: MouseEvent) => { this.handleAudioItemClick(event, index) }}
-                          audio-title=${data.title}
-                          audio-duration=${data.duration}>`
-        })
-        return html`${until(content, null)}`
-      })
-    }
-  }
-
-  handleAudioItemClick (event: MouseEvent, index: number): void {
-    if (this.selectedAudioItem != null) {
-      this.selectedAudioItem.active = false
-    }
-    store.dispatch(audioActions.play(index))
-    this.selectedAudioItem = event.target as MusicPlaylistItem
-    this.selectedAudioItem.active = true
+    store.subscribe(this.handleActionDispatched)
   }
 
   render (): TemplateResult<1> {
@@ -77,7 +57,60 @@ export class MusicPlaylist extends LitElement {
     this.fileAttachment?.addEventListener('file-attachment-accepted', this.handleAttachmentAccepted)
   }
 
-  handleAttachmentAccepted (e: CustomEvent): void {
+  private handleAddPlaylist (state: StoreState): void {
+    const { audioPlaylist: { files } } = state
+
+    this.playlistItemRefs = new Array(files.length)
+    for (let i = 0; i < this.playlistItemRefs.length; i += 1) {
+      this.playlistItemRefs[i] = createRef<MusicPlaylistItem>()
+    }
+
+    this.playlistItems = files.map((file, index) => {
+      const metadataParser = new AudioMetadataParser(file)
+      const content = metadataParser.parse().then((data) => {
+        return html`
+            <audio-item @click=${(event: MouseEvent) => { this.handleAudioItemClick(event, index) }}
+                        audio-title=${data.title}
+                        audio-duration=${data.duration} ${ref(this.playlistItemRefs[index])}>`
+      })
+      return html`${until(content, null)}`
+    })
+  }
+
+  private handleActionDispatched (): void {
+    const state = store.getState()
+    const { lastActionType, audioPlaylist: { currentIndex } } = state
+    switch (lastActionType) {
+      case AudioActionType.ADD_PLAYLIST:
+        this.handleAddPlaylist(state)
+        break
+
+      case AudioActionType.PREVIOUS:
+      case AudioActionType.NEXT:
+        if (currentIndex != null) {
+          const playlistItem = this.playlistItemRefs[currentIndex]?.value
+          if (playlistItem != null) this.selectPlaylistItem(playlistItem)
+        }
+        break
+    }
+  }
+
+  private handleAudioItemClick (event: MouseEvent, index: number): void {
+    store.dispatch(audioActions.play(index))
+
+    const target = event.target as MusicPlaylistItem
+    this.selectPlaylistItem(target)
+  }
+
+  private selectPlaylistItem (playlistItem: MusicPlaylistItem): void {
+    if (this.selectedPlaylistItem != null) {
+      this.selectedPlaylistItem.active = false
+    }
+    playlistItem.active = true
+    this.selectedPlaylistItem = playlistItem
+  }
+
+  private handleAttachmentAccepted (e: CustomEvent): void {
     this.fileInputLabel?.classList.add('label--hidden')
 
     const attachments = e.detail.attachments as Attachment[]
