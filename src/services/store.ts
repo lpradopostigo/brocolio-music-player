@@ -20,7 +20,7 @@ interface AudioInformation {
 
 interface AudioPlaylist {
   readonly files: File[]
-  readonly currentIndex: number
+  readonly currentIndex?: number
 }
 
 export interface StoreState {
@@ -31,7 +31,7 @@ export interface StoreState {
 }
 
 const initialState: StoreState = {
-  audioPlaylist: { files: [], currentIndex: 0 },
+  audioPlaylist: { files: [] },
   audioInformation: { state: AudioState.STOPPED, currentTime: null, duration: null },
   lastActionType: AudioActionType.STOP
 }
@@ -71,6 +71,16 @@ function reducer (state: StoreState = initialState, action: StoreAction): StoreS
         break
       }
 
+      case AudioActionType.NEXT: {
+        if (draft.audioPlaylist.currentIndex == null) {
+          throw Error('index is missing')
+        }
+
+        draft.audioPlaylist.currentIndex += 1
+        draft.audioPlaylist.currentIndex %= draft.audioPlaylist.files.length
+        break
+      }
+
       case AudioActionType.SEEK: {
         if (action.payload?.seekTime == null) {
           throw Error('audio seek time missing')
@@ -84,6 +94,7 @@ function reducer (state: StoreState = initialState, action: StoreAction): StoreS
           throw Error('audio playlist files are  missing')
         }
         draft.audioPlaylist.files = action.payload.files
+        break
       }
     }
   })
