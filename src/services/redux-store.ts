@@ -40,36 +40,31 @@ function reducer (state: StoreState = initialState, action: StoreAction): StoreS
   return produce(state, (draft) => {
     draft.lastActionType = action.type
     switch (action.type) {
-      case InitActionType.SET_AUDIO_GETTERS: {
+      case InitActionType.SET_AUDIO_GETTERS:
         draft.audioInformation.duration = action.audioDuration
         draft.audioInformation.currentTime = action.audioCurrentTime
         break
-      }
 
-      case AudioActionType.PLAY: {
+      case AudioActionType.PLAY:
         draft.audioInformation.state = AudioState.PLAYING
         if (action.payload?.index == null) {
           throw Error('audio index is missing')
         }
         draft.audioPlaylist.currentIndex = action.payload.index
         break
-      }
 
-      case AudioActionType.PAUSE: {
+      case AudioActionType.PAUSE:
         draft.audioInformation.state = AudioState.PAUSED
         break
-      }
 
-      case AudioActionType.STOP: {
+      case AudioActionType.STOP:
         draft.audioInformation.state = AudioState.STOPPED
         draft.audioPlaylist.currentIndex = 0
         break
-      }
 
-      case AudioActionType.RESUME: {
+      case AudioActionType.RESUME:
         draft.audioInformation.state = AudioState.PLAYING
         break
-      }
 
       case AudioActionType.NEXT: {
         const currentIndex = draft.audioPlaylist.currentIndex
@@ -99,21 +94,19 @@ function reducer (state: StoreState = initialState, action: StoreAction): StoreS
         break
       }
 
-      case AudioActionType.SEEK: {
+      case AudioActionType.SEEK:
         if (action.payload?.seekTime == null) {
           throw Error('audio seek time missing')
         }
         draft.audioSeekTime = action.payload.seekTime
         break
-      }
 
-      case AudioActionType.ADD_PLAYLIST: {
+      case AudioActionType.ADD_PLAYLIST:
         if (action.payload?.files == null) {
           throw Error('audio playlist files are  missing')
         }
         draft.audioPlaylist.files = action.payload.files
         break
-      }
     }
   })
 }
