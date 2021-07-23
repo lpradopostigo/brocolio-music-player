@@ -1,9 +1,9 @@
 import { html, LitElement, TemplateResult } from 'lit'
-import { styles } from '../styles/MediaText.styles'
+import { styles } from './media-text.styles'
 import { customElement, property } from 'lit/decorators.js'
 
 @customElement('media-text')
-export default class MediaText extends LitElement {
+export class MediaText extends LitElement {
   static styles = styles
 
   @property({ type: String })

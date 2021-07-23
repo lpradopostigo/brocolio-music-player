@@ -1,13 +1,13 @@
 import { html, LitElement, TemplateResult } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import './MusicPlaylist'
-import './MiniMusicPlayer'
-import { AudioPlayer } from '../services/AudioPlayer'
-import { styles } from '../styles/MusicPlayer.styles'
-import { store } from '../services/store'
+import '../music-playlist/music-playlist'
+import '../mini-music-player/mini-music-player'
+import { AudioPlayer } from '../../services/audio-player'
+import { styles } from './music-player.styles'
+import { reduxStore } from '../../services/redux-store'
 import { Unsubscribe } from '@reduxjs/toolkit'
-import * as initActions from '../services/initActions'
-import { AudioActionType } from '../services/audioActions'
+import * as initActions from '../../redux-actions/init-actions'
+import { AudioActionType } from '../../redux-actions/audio-actions'
 
 @customElement('music-player')
 export class MusicPlayer extends LitElement {
@@ -17,7 +17,7 @@ export class MusicPlayer extends LitElement {
 
   constructor () {
     super()
-    store.dispatch(initActions.setAudioGetters(
+    reduxStore.dispatch(initActions.setAudioGetters(
       () => { return this.audioPlayer.currentTime },
       () => { return this.audioPlayer.duration }))
     this.handleActionDispatched = this.handleActionDispatched.bind(this)
@@ -32,7 +32,7 @@ export class MusicPlayer extends LitElement {
 
   connectedCallback (): void {
     super.connectedCallback()
-    this.storeUnsubscribe = store.subscribe(this.handleActionDispatched)
+    this.storeUnsubscribe = reduxStore.subscribe(this.handleActionDispatched)
   }
 
   disconnectedCallback (): void {
@@ -44,7 +44,7 @@ export class MusicPlayer extends LitElement {
   }
 
   handleActionDispatched (): void {
-    const { lastActionType, audioPlaylist: { files, currentIndex }, audioSeekTime } = store.getState()
+    const { lastActionType, audioPlaylist: { files, currentIndex }, audioSeekTime } = reduxStore.getState()
     switch (lastActionType) {
       case AudioActionType.PLAY: {
         if (currentIndex != null) {

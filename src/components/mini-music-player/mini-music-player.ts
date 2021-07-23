@@ -2,17 +2,17 @@ import { html, LitElement, svg, TemplateResult } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { ref, createRef } from 'lit/directives/ref.js'
 
-import './MediaText'
-import './MediaProgress'
-import { MediaRole } from './MediaButton'
-import { styles } from '../styles/MiniMusicPlayer.styles'
-import { AudioState, store } from '../services/store'
-import * as audioActions from '../services/audioActions'
-import AudioMetadataParser from '../services/AudioMetadataParser'
-import { percentageToValue, valueToPercentage } from '../services/utilities'
+import '../media-text/media-text'
+import '../media-progress/media-progress'
+import { MediaRole } from '../media-button/media-button'
+import { styles } from './mini-music-player.styles'
+import { AudioState, reduxStore } from '../../services/redux-store'
+import * as audioActions from '../../redux-actions/audio-actions'
+import { AudioMetadataParser } from '../../services/audio-metadata-parser'
+import { percentageToValue, valueToPercentage } from '../../services/utilities'
 
-import type MediaProgress from './MediaProgress'
-import type { AudioMetadata } from '../services/AudioMetadataParser'
+import type { MediaProgress } from '../media-progress/media-progress'
+import type { AudioMetadata } from '../../services/audio-metadata-parser'
 
 @customElement('mini-music-player')
 export class MiniMusicPlayer extends LitElement {
@@ -34,7 +34,7 @@ export class MiniMusicPlayer extends LitElement {
 
   constructor () {
     super()
-    const { audioInformation: { duration, currentTime } } = store.getState()
+    const { audioInformation: { duration, currentTime } } = reduxStore.getState()
     if (duration == null || currentTime == null) {
       throw Error('failed to retrieve audio time getters')
     }
@@ -89,24 +89,24 @@ export class MiniMusicPlayer extends LitElement {
   }
 
   private static handlePause (): void {
-    store.dispatch(audioActions.pause())
+    reduxStore.dispatch(audioActions.pause())
   }
 
   private static handlePlay (): void {
-    store.dispatch(audioActions.resume())
+    reduxStore.dispatch(audioActions.resume())
   }
 
   private static handleNext (): void {
-    store.dispatch(audioActions.next())
+    reduxStore.dispatch(audioActions.next())
   }
 
   private static handlePrevious (): void {
-    store.dispatch(audioActions.previous())
+    reduxStore.dispatch(audioActions.previous())
   }
 
   connectedCallback (): void {
     super.connectedCallback()
-    store.subscribe(this.handleActionDispatched)
+    reduxStore.subscribe(this.handleActionDispatched)
   }
 
   render (): TemplateResult<1> {
@@ -133,12 +133,12 @@ export class MiniMusicPlayer extends LitElement {
 
     const duration = this.audioDuration()
     if (duration != null) {
-      store.dispatch(audioActions.seek(percentageToValue(this.seekBarRef.value.value, duration)))
+      reduxStore.dispatch(audioActions.seek(percentageToValue(this.seekBarRef.value.value, duration)))
     }
   }
 
   private handleActionDispatched (): void {
-    const { audioInformation: { state }, audioPlaylist: { files, currentIndex } } = store.getState()
+    const { audioInformation: { state }, audioPlaylist: { files, currentIndex } } = reduxStore.getState()
     if (state === AudioState.PLAYING && currentIndex != null) {
       const metadataParser = new AudioMetadataParser(files[currentIndex])
       metadataParser.parse().then((metadata) => { this.audioMetadata = metadata }, (err) => { console.log(err) })

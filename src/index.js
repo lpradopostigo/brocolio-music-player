@@ -1,1 +1,1 @@
-import './components/MusicPlayer'
+import './components/music-player/music-player'

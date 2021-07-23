@@ -1,7 +1,7 @@
 import { createStore } from 'redux'
-import { AudioAction, AudioActionType } from './audioActions'
+import { AudioAction, AudioActionType } from '../redux-actions/audio-actions'
 import produce from 'immer'
-import { InitAction, InitActionType } from './initActions'
+import { InitAction, InitActionType } from '../redux-actions/init-actions'
 
 type StoreAction = AudioAction | InitAction
 type StoreActionType = AudioActionType | InitActionType
@@ -118,4 +118,4 @@ function reducer (state: StoreState = initialState, action: StoreAction): StoreS
   })
 }
 
-export const store = createStore(reducer)
+export const reduxStore = createStore(reducer)

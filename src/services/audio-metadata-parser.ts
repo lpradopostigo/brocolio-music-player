@@ -14,7 +14,7 @@ export interface AudioMetadata {
   duration: number | undefined
 }
 
-export default class AudioMetadataParser {
+export class AudioMetadataParser {
   private readonly file: File
 
   constructor (file: File) {

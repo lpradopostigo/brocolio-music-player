@@ -1,6 +1,6 @@
 import { html, LitElement, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { styles } from '../styles/MediaButton.styles'
+import { styles } from './media-button.styles'
 
 export enum MediaRole {
   PLAY = 'play',
@@ -10,7 +10,7 @@ export enum MediaRole {
 }
 
 @customElement('media-button')
-export default class MediaButton extends LitElement {
+export class MediaButton extends LitElement {
   static styles = styles
   @property({ type: MediaRole, attribute: 'media-role' })
   mediaRole

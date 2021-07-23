@@ -1,10 +1,10 @@
 import { html, LitElement, TemplateResult } from 'lit'
-import { valueToPercentage } from '../services/utilities'
-import { styles } from '../styles/MediaProgress.styles'
+import { valueToPercentage } from '../../services/utilities'
+import { styles } from './media-progress.styles'
 import { customElement, property } from 'lit/decorators.js'
 
 @customElement('media-progress')
-export default class MediaProgress extends LitElement {
+export class MediaProgress extends LitElement {
   static styles = styles
   @property({ type: Number })
   value = 0

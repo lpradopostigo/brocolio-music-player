@@ -1,16 +1,16 @@
 import { html, LitElement, TemplateResult } from 'lit'
 import { until } from 'lit/directives/until.js'
-import './FileAttachment'
-import type { Attachment, FileAttachmentElement } from './FileAttachment'
-import AudioMetadataParser from '../services/AudioMetadataParser'
+import '../file-attachment/file-attachment'
+import type { Attachment, FileAttachmentElement } from '../file-attachment/file-attachment'
+import { AudioMetadataParser } from '../../services/audio-metadata-parser'
 
-import './MusicPlaylistItem'
-import { styles } from '../styles/MusicPlaylist.styles'
+import '../music-playlist-item/music-playlist-item'
+import { styles } from './music-playlist.styles'
 import { customElement, state } from 'lit/decorators.js'
-import type MusicPlaylistItem from './MusicPlaylistItem'
-import { store, StoreState } from '../services/store'
-import * as audioActions from '../services/audioActions'
-import { AudioActionType } from '../services/audioActions'
+import type { MusicPlaylistItem } from '../music-playlist-item/music-playlist-item'
+import { reduxStore, StoreState } from '../../services/redux-store'
+import * as audioActions from '../../redux-actions/audio-actions'
+import { AudioActionType } from '../../redux-actions/audio-actions'
 import { Ref, createRef, ref } from 'lit/directives/ref.js'
 
 @customElement('music-playlist')
@@ -34,7 +34,7 @@ export class MusicPlaylist extends LitElement {
 
   connectedCallback (): void {
     super.connectedCallback()
-    store.subscribe(this.handleActionDispatched)
+    reduxStore.subscribe(this.handleActionDispatched)
   }
 
   render (): TemplateResult<1> {
@@ -78,7 +78,7 @@ export class MusicPlaylist extends LitElement {
   }
 
   private handleActionDispatched (): void {
-    const state = store.getState()
+    const state = reduxStore.getState()
     const { lastActionType, audioPlaylist: { currentIndex } } = state
     switch (lastActionType) {
       case AudioActionType.ADD_PLAYLIST:
@@ -96,7 +96,7 @@ export class MusicPlaylist extends LitElement {
   }
 
   private handleAudioItemClick (event: MouseEvent, index: number): void {
-    store.dispatch(audioActions.play(index))
+    reduxStore.dispatch(audioActions.play(index))
 
     const target = event.target as MusicPlaylistItem
     this.selectPlaylistItem(target)
@@ -115,6 +115,6 @@ export class MusicPlaylist extends LitElement {
 
     const attachments = e.detail.attachments as Attachment[]
     const files = attachments.map(attachment => attachment.file)
-    store.dispatch(audioActions.addPlaylist(files))
+    reduxStore.dispatch(audioActions.addPlaylist(files))
   }
 }
