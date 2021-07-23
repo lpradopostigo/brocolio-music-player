@@ -5,7 +5,7 @@ import '../mini-music-player/mini-music-player'
 import { AudioPlayer } from '../../services/audio-player'
 import { styles } from './music-player.styles'
 import { reduxStore } from '../../services/redux-store'
-import { Unsubscribe } from '@reduxjs/toolkit'
+import type { Unsubscribe } from '@reduxjs/toolkit'
 import * as initActions from '../../redux-actions/init-actions'
 import { AudioActionType } from '../../redux-actions/audio-actions'
 
@@ -20,6 +20,7 @@ export class MusicPlayer extends LitElement {
     reduxStore.dispatch(initActions.setAudioGetters(
       () => { return this.audioPlayer.currentTime },
       () => { return this.audioPlayer.duration }))
+
     this.handleActionDispatched = this.handleActionDispatched.bind(this)
   }
 
@@ -38,7 +39,7 @@ export class MusicPlayer extends LitElement {
   disconnectedCallback (): void {
     super.disconnectedCallback()
     if (this.storeUnsubscribe == null) {
-      throw Error('Cannot Unsubscribe')
+      throw Error('cannot unsubscribe from reduxStore')
     }
     this.storeUnsubscribe()
   }
@@ -46,46 +47,28 @@ export class MusicPlayer extends LitElement {
   handleActionDispatched (): void {
     const { lastActionType, audioPlaylist: { files, currentIndex }, audioSeekTime } = reduxStore.getState()
     switch (lastActionType) {
-      case AudioActionType.PLAY: {
+      case AudioActionType.PLAY:
+      case AudioActionType.PREVIOUS:
+      case AudioActionType.NEXT:
         if (currentIndex != null) {
           this.audioPlayer.changeAudio(files[currentIndex])
           this.audioPlayer.play()
         }
         break
-      }
 
-      case AudioActionType.RESUME: {
+      case AudioActionType.RESUME:
         this.audioPlayer.play()
         break
-      }
 
-      case AudioActionType.PAUSE: {
+      case AudioActionType.PAUSE:
         this.audioPlayer.pause()
         break
-      }
 
-      case AudioActionType.NEXT: {
-        if (currentIndex != null) {
-          this.audioPlayer.changeAudio(files[currentIndex])
-          this.audioPlayer.play()
-        }
-        break
-      }
-
-      case AudioActionType.PREVIOUS: {
-        if (currentIndex != null) {
-          this.audioPlayer.changeAudio(files[currentIndex])
-          this.audioPlayer.play()
-        }
-        break
-      }
-
-      case AudioActionType.SEEK: {
+      case AudioActionType.SEEK:
         if (audioSeekTime != null) {
           this.audioPlayer.seek(audioSeekTime)
         }
         break
-      }
     }
   }
 }
