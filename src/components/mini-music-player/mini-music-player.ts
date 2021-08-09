@@ -1,6 +1,6 @@
 import { html, LitElement, svg, TemplateResult } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import { ref, createRef } from 'lit/directives/ref.js'
+import { createRef, ref } from 'lit/directives/ref.js'
 
 import '../media-text/media-text'
 import '../media-progress/media-progress'
@@ -8,11 +8,12 @@ import { MediaRole } from '../media-button/media-button'
 import { styles } from './mini-music-player.styles'
 import { AudioState, reduxStore } from '../../services/redux-store'
 import * as audioActions from '../../redux-actions/audio-actions'
+import { AudioActionType } from '../../redux-actions/audio-actions'
+import type { AudioMetadata } from '../../services/audio-metadata-parser'
 import { AudioMetadataParser } from '../../services/audio-metadata-parser'
 import { percentageToValue, valueToPercentage } from '../../services/utilities'
 
 import type { MediaProgress } from '../media-progress/media-progress'
-import type { AudioMetadata } from '../../services/audio-metadata-parser'
 
 @customElement('mini-music-player')
 export class MiniMusicPlayer extends LitElement {
@@ -26,7 +27,6 @@ export class MiniMusicPlayer extends LitElement {
   @state() audioMetadata: AudioMetadata | null = null
   @state() active = false
   @state() audioIsPlaying = false
-
   private readonly audioCurrentTime: () => (number | undefined)
   private readonly audioDuration: () => (number | undefined)
   private readonly seekBarRef = createRef<MediaProgress>()
@@ -43,13 +43,12 @@ export class MiniMusicPlayer extends LitElement {
     this.audioCurrentTime = currentTime
 
     this.handleActionDispatched = this.handleActionDispatched.bind(this)
-    this.seekBarValue = this.seekBarValue.bind(this)
+    this.updateSeekBarValue = this.updateSeekBarValue.bind(this)
+    this.handleSeek = this.handleSeek.bind(this)
   }
 
   private get audioArt (): TemplateResult {
-    if (this.audioMetadata?.albumArt == null) {
-      return MiniMusicPlayer.defaultAudioArt
-    }
+    if (this.audioMetadata?.albumArt == null) return MiniMusicPlayer.defaultAudioArt
     const { data, format } = this.audioMetadata.albumArt
     const imageURL = URL.createObjectURL(new Blob([data], { type: format }))
     return html`<img src=${imageURL} alt="album-art">`
@@ -104,6 +103,7 @@ export class MiniMusicPlayer extends LitElement {
     reduxStore.dispatch(audioActions.previous())
   }
 
+  // todo unsubscribe
   connectedCallback (): void {
     super.connectedCallback()
     reduxStore.subscribe(this.handleActionDispatched)
@@ -122,14 +122,16 @@ export class MiniMusicPlayer extends LitElement {
         <div class="media-button-wrapper">
             ${this.mediaButtons}
         </div>
-        <media-progress ${ref(this.seekBarRef)} class="slider-seek" @click=${this.handleSeek}></media-progress>
+        <media-progress ?disabled=${!this.active}
+                        ${ref(this.seekBarRef)}
+                        class="slider-seek"
+                        @click=${this.handleSeek}></media-progress>
     `
   }
 
   private handleSeek (): void {
-    if (this.seekBarRef.value == null) {
-      throw Error('cannot retrieve seek bar')
-    }
+    if (!this.active) return
+    if (this.seekBarRef.value == null) throw Error('cannot retrieve seek bar')
 
     const duration = this.audioDuration()
     if (duration != null) {
@@ -137,26 +139,31 @@ export class MiniMusicPlayer extends LitElement {
     }
   }
 
+  // todo clear interval
   private handleActionDispatched (): void {
-    const { audioInformation: { state }, audioPlaylist: { files, currentIndex } } = reduxStore.getState()
-    if (state === AudioState.PLAYING && currentIndex != null) {
-      const metadataParser = new AudioMetadataParser(files[currentIndex])
-      metadataParser.parse().then((metadata) => { this.audioMetadata = metadata }, (err) => { console.log(err) })
-      this.active = true
-      this.audioIsPlaying = true
-      this.seekBarIntervalId = setInterval(this.seekBarValue, 1000)
-    } else {
-      this.audioIsPlaying = false
-      if (this.seekBarIntervalId != null) {
-        clearInterval(this.seekBarIntervalId)
+    const {
+      audioInformation: { state },
+      lastActionType,
+      audioPlaylist: { files, currentIndex }
+    } = reduxStore.getState()
+    this.audioIsPlaying = state === AudioState.PLAYING
+
+    switch (lastActionType) {
+      case AudioActionType.PLAY: {
+        if (currentIndex == null) {
+          throw Error('index is missing')
+        }
+        const metadataParser = new AudioMetadataParser(files[currentIndex])
+        metadataParser.parse().then((metadata) => { this.audioMetadata = metadata }, (err) => { console.log(err) })
+        this.active = true
+        this.seekBarIntervalId = setInterval(this.updateSeekBarValue, 500)
+        break
       }
     }
   }
 
-  private seekBarValue (): void {
-    if (this.seekBarRef.value == null) {
-      throw Error('cannot retrieve seek bar')
-    }
+  private updateSeekBarValue (): void {
+    if (this.seekBarRef.value == null) throw Error('cannot retrieve seek bar')
 
     const currentTime = this.audioCurrentTime()
     const duration = this.audioDuration()
