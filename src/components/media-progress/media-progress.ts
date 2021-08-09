@@ -9,6 +9,11 @@ export class MediaProgress extends LitElement {
   @property({ type: Number }) value = 0
   @property({ type: Boolean }) disabled = false
 
+  constructor () {
+    super()
+    this.handleClick = this.handleClick.bind(this)
+  }
+
   private get barProgressWidth (): string {
     return (this.value >= 0 && this.value <= 100) ? `${this.value}%` : '0%'
   }
